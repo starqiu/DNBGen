@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="DNBGen"
+  id="myeclipse.1421805121088"
+  context-root="/DNBGen"
+  j2ee-spec="6.0"
+  archive="DNBGen.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+
