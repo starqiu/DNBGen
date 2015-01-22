@@ -1,0 +1,40 @@
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<definition name="template" template="/WEB-INF/views/template_main.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/header.jsp" />
+		<put-attribute name="top" value="/WEB-INF/views/top.jsp" />
+		<put-attribute name="sider" value="/WEB-INF/views/sider.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp" />
+	</definition>
+	<!-- login pages -->
+	<definition name="index" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/indexContent.jsp" />
+	</definition>
+	<definition name="operateSuccess" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/operateSuccess.jsp" />
+	</definition>
+	<definition name="operateFailed" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/operateFailed.jsp" />
+	</definition>
+	<definition name="grid" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/grid.jsp" />
+	</definition>
+	<definition name="faq" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/faq.jsp" />
+	</definition>
+	<definition name="plans" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/plans.jsp" />
+	</definition>
+	<definition name="charts" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/charts.jsp" />
+	</definition>
+	<definition name="login"  template="/WEB-INF/views/login.jsp" >
+	</definition>
+	<definition name="account" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/account.jsp" />
+	</definition>
+
+</tiles-definitions>
