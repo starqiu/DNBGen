@@ -2,7 +2,6 @@ package controller;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +17,36 @@ public class GeneralController {
 	public static final Logger log = Logger.getLogger(GeneralController.class);
 
 	@RequestMapping(value = "index.do")
-	public void index_jsp(Model model) {
-		model.addAttribute("liming", "黎明你好");
-		System.out.println("index.jsp");
+	public String  index(Model model) {
+		return "index";
+	}
+	@RequestMapping(value = "grid.do")
+	public String  grid(Model model) {
+		return "grid";
+	}
+	@RequestMapping(value = "change_password.do")
+	public String  change_password(Model model) {
+		return "change_password";
+	}
+	@RequestMapping(value = "faq.do")
+	public String  faq(Model model) {
+		return "faq";
+	}
+	@RequestMapping(value = "plans.do")
+	public String  plans(Model model) {
+		return "plans";
+	}
+	@RequestMapping(value = "charts.do")
+	public String  charts(Model model) {
+		return "charts";
+	}
+	@RequestMapping(value = "account.do")
+	public String  account(Model model) {
+		return "account";
+	}
+	@RequestMapping(value = "login.do")
+	public String  login(Model model) {
+		return "login";
 	}
 
 	@RequestMapping(value = "genDNB.do")
