@@ -12,8 +12,12 @@
 <link href="<c:url value='/css/font-awesome.css' />"  rel="stylesheet" />
 <link href="<c:url value='/css/adminia.css' />"  rel="stylesheet" /> 
 <link href="<c:url value='/css/adminia-responsive.css' />"  rel="stylesheet" /> 
+<link href="<c:url value='/css/custom.css' />"  rel="stylesheet" /> 
 
 <link href="<c:url value='/css/pages/dashboard.css' />"   rel="stylesheet" /> 
 <link href="<c:url value='/css/pages/plans.css' />"   rel="stylesheet" /> 
 <link href="<c:url value='/css/pages/faq.css' />"   rel="stylesheet" /> 
 <link href="<c:url value='/css/pages/login.css' />"   rel="stylesheet" /> 
+
+<script src="<c:url value='/js/jquery-1.7.2.min.js' />"></script>
+<script src="<c:url value='/js/bootstrap.js' />"></script>

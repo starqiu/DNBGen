@@ -10,54 +10,79 @@
 	<i class="icon-home"></i> Dashboard
 </h1>
 
-<div class="stat-container">
-
-	<div class="stat-holder">
-		<div class="stat">
-			<span>564</span> Completed Sales
-		</div>
-		<!-- /stat -->
-	</div>
-	<!-- /stat-holder -->
-
-	<div class="stat-holder">
-		<div class="stat">
-			<span>423</span> Pending Sales
-		</div>
-		<!-- /stat -->
-	</div>
-	<!-- /stat-holder -->
-
-	<div class="stat-holder">
-		<div class="stat">
-			<span>96</span> Returned Sales
-		</div>
-		<!-- /stat -->
-	</div>
-	<!-- /stat-holder -->
-
-	<div class="stat-holder">
-		<div class="stat">
-			<span>2</span> Chargebacks
-		</div>
-		<!-- /stat -->
-	</div>
-	<!-- /stat-holder -->
-
-</div>
-<!-- /stat-container -->
-
 <div class="widget">
 
 	<div class="widget-header">
 		<i class="icon-signal"></i>
-		<h3>Area Chart</h3>
+		<h3>Input Patameters</h3>
 	</div>
 	<!-- /widget-header -->
 
 	<div class="widget-content">
-		<div id="bar-chart" class="chart-holder"></div>
-		<!-- /bar-chart -->
+		<form id="form" role="form" action="genDNB.do" method="post">
+			<div class="row">
+				<div class="span4">
+					<label for="basePath" class="control-label" >base path </label> <input id="basePath"
+						name="basePath" type="text" class="form-control" value="~/gdm/" readonly />
+				</div>
+				<div class="span4">
+					<label for="fileName" class="control-label" >file name</label> 
+					<c:if test="${empty  fileNames}">
+					no  files to generate DNB ,please <a href="dataManage.do" >upload file </a>
+					</c:if>
+					<c:if test="${!empty  fileNames}">
+						<select  id="fileName"  name="fileName"    class="form-control" >
+							<c:forEach items="${fileNames }" varStatus="s">
+								<option name="${fileNames[s.index] }">${fileNames[s.index] }</option>
+							</c:forEach>
+						</select>
+					</c:if>
+				</div>
+			</div>
+			<div class="row">
+				<div class="span4">
+					<label for="periodCount" class="control-label" >period count</label> <input id="periodCount"
+						name="periodCount" type="text" value="5"    class="form-control"  />
+				</div>
+				<div class="span4">
+					<label for="periodSampleCount" class="control-label" >period sample count</label> <input
+						id="periodSampleCount" name="periodSampleCount" type="text"
+						value="5"    class="form-control"  />
+				</div>
+			</div>
+			<div class="row">
+				<div class="span4">
+					<label for="periodSampleSep" class="control-label" >period sample sep</label> <input
+						id="periodSampleSep" name="periodSampleSep" type="text" value="10"    class="form-control"  />
+				</div>
+				<div class="span4">
+					<label for="featuresSdThreshold" class="control-label" >features sd threshold </label> <input
+						id="featuresSdThreshold" name="featuresSdThreshold" type="text"
+						value="0.001"    class="form-control"  />
+				</div>
+			</div>
+			<div class="row">
+				<div class="span4">
+					<label for="clusterHclustH" class="control-label" >cluster hclust h</label> <input
+						id="clusterHclustH" name="clusterHclustH" type="text" value="0.75"    class="form-control"  />
+				</div>
+				<div class="span4">
+					<label for="pccOutAmount" class="control-label" >pcc out amount</label> <input
+						id="pccOutAmount" name="pccOutAmount" type="text" value="50"    class="form-control"  />
+				</div>
+			</div>
+			<div class="row">
+				<div class="span4">
+					<label for="cores" class="control-label" >cores</label> <input id="cores" name="cores"
+						type="text" value="6"    class="form-control"  />
+				</div>
+				<div class="span4"></div>
+			</div>
+
+
+
+			<br /> <input type="submit" value="submit" />
+		</form>
 	</div>
 	<!-- /widget-content -->
 
@@ -76,117 +101,7 @@
 
 	<div class="widget-content">
 
-		<table class="table table-striped table-bordered">
-			<thead>
-				<tr>
-					<th>#</th>
-					<th>First Name</th>
-					<th>Last Name</th>
-					<th>Username</th>
-					<th>Company</th>
-					<th>&nbsp;</th>
-				</tr>
-			</thead>
 
-			<tbody>
-				<tr>
-					<td>1</td>
-					<td>Michael</td>
-					<td>Jordan</td>
-					<td>@mjordan</td>
-					<td>Chicago Bulls</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td>Magic</td>
-					<td>Johnson</td>
-					<td>@mjohnson</td>
-					<td>Los Angeles Lakers</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>3</td>
-					<td>Charles</td>
-					<td>Barkley</td>
-					<td>@cbarkley</td>
-					<td>Phoenix Suns</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>4</td>
-					<td>Karl</td>
-					<td>Malone</td>
-					<td>@kmalone</td>
-					<td>Utah Jazz</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>5</td>
-					<td>David</td>
-					<td>Robinson</td>
-					<td>@drobinson</td>
-					<td>San Antonio Spurs</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>6</td>
-					<td>Reggie</td>
-					<td>Miller</td>
-					<td>@rmiller</td>
-					<td>Indiana Pacers</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>7</td>
-					<td>Clyde</td>
-					<td>Drexler</td>
-					<td>@cdrexler</td>
-					<td>Portland Trail Blazers</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-				<tr>
-					<td>8</td>
-					<td>Hakeem</td>
-					<td>Olajuwon</td>
-					<td>@holajuwon</td>
-					<td>Houston Rockets</td>
-					<td class="action-td"><a href="javascript:;"
-						class="btn btn-small btn-warning"> <i class="icon-ok"></i> </a> <a
-						href="javascript:;" class="btn btn-small"> <i
-							class="icon-remove"></i> </a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
 
 	</div>
 	<!-- /widget-content -->

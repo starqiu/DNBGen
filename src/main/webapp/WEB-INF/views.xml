@@ -25,8 +25,8 @@
 	<definition name="faq" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/faq.jsp" />
 	</definition>
-	<definition name="plans" extends="template">
-		<put-attribute name="content" value="/WEB-INF/views/plans.jsp" />
+	<definition name="dataManage" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/dataManage.jsp" />
 	</definition>
 	<definition name="charts" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/charts.jsp" />

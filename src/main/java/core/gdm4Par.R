@@ -82,7 +82,7 @@ print.usage <- function(){
 
 #GK , WT
 divide.files.by.state <- function(file.name){
-  matrix.table <- read.table(paste(BASE.PATH,file.name,sep=""),
+  matrix.table <- read.table(paste(BASE.PATH,"sourceData/",file.name,sep=""),
                              header=TRUE,sep="")
   gk.index <- c(1,2:6,12:16,22:26,32:36,42:46)
   wt.index <- c(1,7:11,17:21,27:31,37:41,47:51)
@@ -327,5 +327,5 @@ main <- function(){
     gdm()
   }
 }
-main()
-# system.time(main())
+# main()
+system.time(main())

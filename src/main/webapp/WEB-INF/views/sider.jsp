@@ -30,10 +30,8 @@
 	<li class="active"><a href="./"> <i class="icon-home"></i>
 			Dashboard </a></li>
 
-	<li><a href="faq.do"> <i class="icon-pushpin"></i> FAQ </a></li>
-
-	<li><a href="plans.do"> <i class="icon-th-list"></i> Pricing
-			Plans </a></li>
+	<li><a href="dataManage.do"> <i class="icon-th-list"></i>
+			Data Manage </a></li>
 
 	<li><a href="grid.do"> <i class="icon-th-large"></i> Grid
 			Layout <span class="label label-warning pull-right">5</span> </a></li>
@@ -45,16 +43,18 @@
 
 	<li><a href="login.do"> <i class="icon-lock"></i> Login </a>
 	</li>
+	<li><a href="faq.do"> <i class="icon-pushpin"></i> FAQ </a>
+	</li>
 
 </ul>
 
-<hr />
+<%--<hr />
 
 <div class="sidebar-extra">
 	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
 		eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
 		minim veniam, quis nostrud.</p>
 </div>
-<!-- .sidebar-extra -->
+--%><!-- .sidebar-extra -->
 
 <br />
