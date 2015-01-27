@@ -24,7 +24,7 @@
 				</div>
 				<!-- /span3 -->
 				<div class="span9">
-					<tiles:insertTemplate template="/WEB-INF/views/indexContent.jsp" />
+					<tiles:insertTemplate template="/WEB-INF/views/dataManage.jsp" />
 				</div>
 				<!-- /span9 -->
 			</div>
@@ -34,13 +34,15 @@
 	</div>
 	<!-- /content -->
 	<tiles:insertTemplate template="/WEB-INF/views/footer.jsp" />
+	<script type="text/javascript">
+		$("#dataManage").addClass("active");
+	</script>
+	<%--
 	
 	<script src="<c:url value='/js/excanvas.min.js' />"></script>
 	<script src="<c:url value='/js/jquery.flot.js' />"></script>
 	<script src="<c:url value='/js/jquery.flot.pie.js' />"></script>
 	<script src="<c:url value='/js/jquery.flot.orderBars.js' />"></script>
 	<script src="<c:url value='/js/jquery.flot.resize.js' />"></script>
-
-	<script src="<c:url value='/js/charts/bar.js' />"></script>
-</body>
+--%></body>
 </html>

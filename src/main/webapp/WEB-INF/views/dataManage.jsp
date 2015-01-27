@@ -5,7 +5,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <h1 class="page-title">
-	<i class="icon-th-list"></i> Data Manage
+	<i class="icon-upload"></i> Data Manage
 </h1>
 
 <div class="widget">
@@ -88,4 +88,6 @@
 
 </div>
 <!-- /widget -->
-
+	<script type="text/javascript">
+		$("#dataManage").addClass("active");
+	</script>

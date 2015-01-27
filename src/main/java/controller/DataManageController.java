@@ -44,7 +44,7 @@ public class DataManageController {
 			.getLogger(DataManageController.class);
 	public  final String classPath = this.getClass().getResource("/").getPath();
 
-	@RequestMapping(value = "dataManage.do")
+	@RequestMapping(value ={"/", "index.do","dataManage.do"} )
 	public String  dataManage(HttpServletRequest request) {
 		queryUploadFiles(request);
 		return "dataManage";

@@ -15,11 +15,13 @@ FILE.NAME <- "liver_labeled_data.txt"
 PERIOD.COUNT <- 5 #we have 5 periods:4wk,8wk,12wk,16wk,20wk
 PERIOD.SAMPLE.SEP <- 10 #each period has 10 samples
 PERIOD.SAMPLE.COUNT <- 5 # divide into GK and WKY, each have 5 samples 
-STATE <- c("gk","wt") #gk is case,wt is control
-FEATURES.SD.THRESHOLD <- 0.001
+FEATURES.SD.THRESHOLD <- 0.002
 CLUSTER.HCLUST.H <- 0.75
 PCC.OUT.AMOUNT <- 50
 CORES <- 6
+
+STATE <- c("gk","wt") #gk is case,wt is control
+STATE.COUNT <- 2
 
 init <- function(args){
   len <- length(args)
@@ -46,36 +48,37 @@ set.key.value  <- function(key,value){
 
 print.usage <- function(){
   cat("Usage: gdm4Par.R [-h/--help | -p/--base.path directory] \n
-        [-f/--file.name file] [--period.count number] \n
-        [--period.sample.count number] [--period.sample.sep number] \n
-        [--features.sd.threshold float] [--cluster.hclust.h float] \n
-        [--pcc.out.amount number] [cores number]\n")
+      [-f/--file.name file] [--period.count number] \n
+      [--period.sample.count number] [--period.sample.sep number] \n
+      [--features.sd.threshold float] [--cluster.hclust.h float] \n
+      [--pcc.out.amount number] [cores number]\n")
   cat("Details:\n")
   cat("\t -h/--help   show the usage of gdm4Par.R \n")
-  cat("\t -p/--base.path   set the base running  directory of program .
-                           the value could be ~/gdm/ \n")
-  cat("\t -f/--file.name   set the name of data file. 
-                           the default is liver_labeled_data.txt \n")
+  cat("\t -p/--base.path   set the base data outputing  directory of program .
+      the value could be ~/gdm/ \n")
+  cat("\t -f/--file.name   set the name of data file,this file should be in 
+                          base.path/sourceData directory. 
+      the default is liver_labeled_data.txt \n")
   cat("\t --period.count   set the number of periods we have
-                           the default is 5 periods:4wk,8wk,12wk,16wk,20wk \n")
+      the default is 5 periods:4wk,8wk,12wk,16wk,20wk \n")
   cat("\t --period.sample.count   set the number of samples at each period 
-                                  for each sort of rat . the default is 5 \n")
+      for each sort of rat . the default is 5 \n")
   cat("\t --period.sample.sep   set the number of samples at each period
-                                the default is 10. \n")
+      the default is 10. \n")
   cat("\t --features.sd.threshold   set the threshold of filtering SD
-                                    the default is 0.001 \n")
+      the default is 0.001 \n")
   cat("\t --cluster.hclust.h   set the h value when we call the cutree function
-                               the default is 0.75 \n")
+      the default is 0.75 \n")
   cat("\t --pcc.out.amount  set the max number of the PCC between two modules 
-                            we select to calculate. the default is 50 \n")
+      we select to calculate. the default is 50 \n")
   cat("\t --cores  set the number of cores we use for parallel program 
-                   the default is 6 \n")
+      the default is 6 \n")
   cat("Description:\n")
   cat("\t  if -h/--help is appeared,the other parameters is ignored. 
       otherwise base.path is necessary.
-       \t  if you want have more cores ,you can set it larger value ,
+      \t  if you want have more cores ,you can set it larger value ,
       the program may run faster.
-       \t  change features.sd.threshold may have suprise. it's good encough
+      \t  change features.sd.threshold may have suprise. it's good encough
       to the data of rat's liver.
       \n")
 }
@@ -84,8 +87,20 @@ print.usage <- function(){
 divide.files.by.state <- function(file.name){
   matrix.table <- read.table(paste(BASE.PATH,"sourceData/",file.name,sep=""),
                              header=TRUE,sep="")
-  gk.index <- c(1,2:6,12:16,22:26,32:36,42:46)
-  wt.index <- c(1,7:11,17:21,27:31,37:41,47:51)
+#   gk.index <- c(1,2:6,12:16,22:26,32:36,42:46)
+#   wt.index <- c(1,7:11,17:21,27:31,37:41,47:51)
+  
+  gk.index <- c(1)
+  wt.index <- c(1)
+  gk.start <- 2:(PERIOD.SAMPLE.COUNT+1)
+  wt.start <- (2+PERIOD.SAMPLE.COUNT):(STATE.COUNT*PERIOD.SAMPLE.COUNT+1)
+  
+  for (i in 1:PERIOD.COUNT){
+    offset <- (i-1)*PERIOD.COUNT*STATE.COUNT
+    gk.index <- c(gk.index,gk.start + offset)
+    wt.index <- c(wt.index,wt.start + offset)
+  }
+  
   write.table(matrix.table[gk.index],file=paste(BASE.PATH,"gk_data.txt",sep=""),
               row.names = FALSE,
               sep="\t")
@@ -128,9 +143,9 @@ sd.test <- function(file.name,features.sd.threshold=0.001){
   gene.sd.log.p <- unlist(lapply(gene.sd.log,pnorm,mean=mean(gene.sd.log),sd=sd(gene.sd.log)))
   high.sd.index <- which((gene.sd.log.p <= features.sd.threshold) | (gene.sd.log.p >= (1-features.sd.threshold))) 
   #li's method
-#   sd.log.threshold <- pnorm(features.sd.threshold/2,mean=mean(gene.sd.log),sd=sd(gene.sd.log))
-#   high.sd.index <- which(abs(gene.sd.log) >= sd.log.threshold)
-
+  #   sd.log.threshold <- pnorm(features.sd.threshold/2,mean=mean(gene.sd.log),sd=sd(gene.sd.log))
+  #   high.sd.index <- which(abs(gene.sd.log) >= sd.log.threshold)
+  
   write.table(gene.sd,
               paste(BASE.PATH,file.name,"_sd.txt",sep=""),
               row.names=FALSE,
@@ -246,12 +261,18 @@ pcc.test <- function(period){
               sep="\t",
               col.names=FALSE)
   
-  max.model <- genes[as.integer(unlist(strsplit(as.character(models[which.max(ci)]),",")))]
-  write.table(max.model,
+  max.model <<- genes[as.integer(unlist(strsplit(as.character(models[which.max(ci)]),",")))]
+#   print(max.model)
+  write.table(as.integer(max.model),
               paste(BASE.PATH,"matrix_table_",period*4,"wk_dnb.txt",sep=""),
               row.names=FALSE,
               sep="\t",
-              col.names=FALSE)
+              col.names=FALSE,
+              quote=FALSE)
+}
+
+findMaxima <- function(array){
+  which(diff(c(1,sign(diff(array)),-1)) == -2)
 }
 
 plot.ci <- function(){
@@ -269,7 +290,17 @@ plot.ci <- function(){
               paste(BASE.PATH,"all_ci.txt",sep=""),
               row.names=FALSE,
               sep="\t",
-              col.names=FALSE)
+              col.names=names(ci),
+              quote=FALSE)
+  ci.maxima.index <- findMaxima(unlist(ci))
+  print("ci maxima index:")
+  print(ci.maxima.index)
+  write.table(t(ci.maxima.index),
+              paste(BASE.PATH,"ci_maxima_index.txt",sep=""),
+              row.names=FALSE,
+              sep="\t",
+              col.names=FALSE,
+              quote=FALSE)
   setwd(BASE.PATH)
   png("ci.png")
   plot(periods,unlist(ci),
@@ -280,20 +311,20 @@ plot.ci <- function(){
   dev.off()
 }
 
-compare.to.example <- function(){
-  example.dnb.t1 <-read.table(paste(BASE.PATH,"liver_DNB_t1.txt",sep=""))[,1]
-  example.dnb.t4 <-read.table(paste(BASE.PATH,"liver_DNB_t4.txt",sep=""))[,1]
-  dnb.4wk <-read.table(paste(BASE.PATH,"matrix_table_4wk_dnb.txt",sep=""))[,1]
-  dnb.16wk <-read.table(paste(BASE.PATH,"matrix_table_16wk_dnb.txt",sep=""))[,1]
-  
-  #find common features
-  common.features.t1 <- intersect(example.dnb.t1,dnb.4wk)
-  write.table(common.features.t1,paste(BASE.PATH,"common_4wk_dnb.txt",sep=""),sep="\n",
-              col.names=FALSE,row.names=FALSE)
-  common.features.t4 <- intersect(example.dnb.t4,dnb.16wk)
-  write.table(common.features.t4,paste(BASE.PATH,"common_16wk_dnb.txt",sep=""),sep="\n",
-              col.names=FALSE,row.names=FALSE)
-}
+# compare.to.example <- function(){
+#   example.dnb.t1 <-read.table(paste(BASE.PATH,"liver_DNB_t1.txt",sep=""))[,1]
+#   example.dnb.t4 <-read.table(paste(BASE.PATH,"liver_DNB_t4.txt",sep=""))[,1]
+#   dnb.4wk <-read.table(paste(BASE.PATH,"matrix_table_4wk_dnb.txt",sep=""))[,1]
+#   dnb.16wk <-read.table(paste(BASE.PATH,"matrix_table_16wk_dnb.txt",sep=""))[,1]
+#   
+#   #find common features
+#   common.features.t1 <- intersect(example.dnb.t1,dnb.4wk)
+#   write.table(common.features.t1,paste(BASE.PATH,"common_4wk_dnb.txt",sep=""),sep="\n",
+#               col.names=FALSE,row.names=FALSE)
+#   common.features.t4 <- intersect(example.dnb.t4,dnb.16wk)
+#   write.table(common.features.t4,paste(BASE.PATH,"common_16wk_dnb.txt",sep=""),sep="\n",
+#               col.names=FALSE,row.names=FALSE)
+# }
 
 
 gdm <- function(){
@@ -305,7 +336,7 @@ gdm <- function(){
   }
   
   foreach (period = 1:PERIOD.COUNT) %dopar% {
-    # for (period in 1:PERIOD.COUNT)  {
+#     for (period in 1:PERIOD.COUNT)  {
     #4wk,8wk,12wk,16wk,20wk
     file.name <- paste("matrix_table_",period*4,"wk",sep="")
     sd.test(file.name=file.name,features.sd.threshold=FEATURES.SD.THRESHOLD)
@@ -320,10 +351,12 @@ gdm <- function(){
 main <- function(){
   args <- commandArgs(TRUE)
   print(args)
-  if ((length(args) %% 2 != 0) | (length(args) == 0)){
+  if ((length(args) %% 2 != 0) ){
     print.usage()
   }else {
-    init(args)
+    if(length(args) != 0){
+      init(args)
+    }
     gdm()
   }
 }

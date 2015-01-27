@@ -7,7 +7,7 @@
 <%@ page isELIgnored="false"%>
 
 <h1 class="page-title">
-	<i class="icon-home"></i> Dashboard
+	<i class="icon-pencil"></i> Param Input
 </h1>
 
 <div class="widget">
@@ -88,81 +88,13 @@
 
 </div>
 <!-- /widget -->
-
-
-
-<div class="widget widget-table">
-
-	<div class="widget-header">
-		<i class="icon-th-list"></i>
-		<h3>Table</h3>
-	</div>
-	<!-- /widget-header -->
-
-	<div class="widget-content">
-
-
-
-	</div>
-	<!-- /widget-content -->
-
-</div>
-<!-- /widget -->
+<script type="text/javascript">
+	$("#paramInput").addClass("active");
+</script>
 
 
 
 
-<div class="row">
 
-	<div class="span5">
 
-		<div class="widget">
 
-			<div class="widget-header">
-				<h3>5 Column</h3>
-			</div>
-			<!-- /widget-header -->
-
-			<div class="widget-content">
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
-					do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-					enim ad minim veniam, quis nostrud exercitation ullamco laboris
-					nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-					reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-					pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-					culpa qui officia deserunt mollit anim id est laborum.</p>
-			</div>
-			<!-- /widget-content -->
-
-		</div>
-		<!-- /widget -->
-
-	</div>
-	<!-- /span5 -->
-
-	<div class="span4">
-
-		<div class="widget">
-
-			<div class="widget-header">
-				<h3>4 Column</h3>
-			</div>
-			<!-- /widget-header -->
-
-			<div class="widget-content">
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
-					do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-					enim ad minim veniam, quis nostrud exercitation ullamco laboris
-					nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-					reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-					pariatur.</p>
-			</div>
-			<!-- /widget-content -->
-
-		</div>
-		<!-- /widget -->
-	</div>
-	<!-- /span4 -->
-
-</div>
-<!-- /row -->

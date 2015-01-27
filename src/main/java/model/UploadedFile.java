@@ -22,10 +22,10 @@ import java.util.Date;
  *
  */
 public class UploadedFile {
-	public String fileName ;
-	public String filePath ;
-	public Date lastModifiedTime ;
-	public long size ;
+	private String fileName ;
+	private String filePath ;
+	private Date lastModifiedTime ;
+	private long size ;
 	
 	public String getFileName() {
 		return fileName;

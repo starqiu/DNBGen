@@ -14,6 +14,8 @@
 		http://www.springframework.org/schema/tx 
 		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
+	<import resource="i18n.xml" />
+	
 	<mvc:annotation-driven />
 	<context:component-scan base-package="controller" />
 
@@ -21,6 +23,7 @@
 	<mvc:resources location="/js/" mapping="/js/**" />
 	<mvc:resources location="/images/" mapping="/images/**" />
 	<mvc:resources location="/fonts/" mapping="/fonts/**" />
+	<mvc:resources location="/messages/" mapping="/messages/**" />
 
 <!-- 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">

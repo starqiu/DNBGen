@@ -9,29 +9,34 @@
 		<put-attribute name="sider" value="/WEB-INF/views/sider.jsp" />
 		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp" />
 	</definition>
-	<!-- login pages -->
-	<definition name="index" extends="template">
-		<put-attribute name="content" value="/WEB-INF/views/indexContent.jsp" />
+
+	<!-- <definition name="index" extends="template"> <put-attribute name="content" 
+		value="/WEB-INF/views/dataManage.jsp" /> </definition> -->
+	<definition name="dataManage" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/dataManage.jsp" />
 	</definition>
+	<definition name="paramInput" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/paramInput.jsp" />
+	</definition>
+
 	<definition name="operateSuccess" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/operateSuccess.jsp" />
 	</definition>
 	<definition name="operateFailed" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/operateFailed.jsp" />
 	</definition>
+
 	<definition name="grid" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/grid.jsp" />
 	</definition>
 	<definition name="faq" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/faq.jsp" />
 	</definition>
-	<definition name="dataManage" extends="template">
-		<put-attribute name="content" value="/WEB-INF/views/dataManage.jsp" />
-	</definition>
+
 	<definition name="charts" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/charts.jsp" />
 	</definition>
-	<definition name="login"  template="/WEB-INF/views/login.jsp" >
+	<definition name="login" template="/WEB-INF/views/login.jsp">
 	</definition>
 	<definition name="account" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/account.jsp" />
