@@ -1,4 +1,4 @@
-#! /usr/bin/Rscript --no-save
+#! C:\ProgramFiles\R\R-3.1.2\bin\Rscript.exe --no-save
 #
 #' @author : star qiu
 #' @date 2014.8.1
@@ -281,6 +281,7 @@ plot.ci <- function(){
               quote=FALSE)
   ci.maxima.index <- findMaxima(unlist(ci))
   print("ci maxima index:")
+  names(ci.maxima.index) <- paste(ci.maxima.index*4,"wk",sep="")
   print(ci.maxima.index)
   write.table(t(ci.maxima.index),
               "ci_maxima_index.txt",
@@ -317,7 +318,7 @@ gdm <- function(){
 }
 
 main <- function(){
-#   setwd(".")
+  #   setwd(".")
   args <- commandArgs(TRUE)
   print(args)
   if ((length(args) %% 2 != 0) ){
