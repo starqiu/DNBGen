@@ -1,4 +1,4 @@
-#! C:\ProgramFiles\R\R-3.1.2\bin\Rscript.exe --no-save
+#!  /usr/bin/Rscript --no-save
 #
 #' @author : star qiu
 #' @date 2014.8.1
@@ -6,17 +6,24 @@
 #' 
 library(plyr)
 
-FILE.NAME <- "liver_labeled_data.txt"
+FILE.NAME <- "GSE64538_labeled.txt"
 
-PERIOD.COUNT <- 5 #we have 5 periods:4wk,8wk,12wk,16wk,20wk
-PERIOD.SAMPLE.SEP <- 10 #each period has 10 samples
-PERIOD.SAMPLE.COUNT <- 5 # divide into GK and WKY, each have 5 samples 
-FEATURES.SD.THRESHOLD <- 0.001
+PERIOD.COUNT <- 4 #we have 5 periods:4wk,8wk,12wk,16wk,20wk
+PERIOD.SAMPLE.COUNT <- 3 # divide into GK and WKY, each have 5 samples 
+FEATURES.SD.THRESHOLD <- 0.05
+
+
+# FILE.NAME <- "liver_labeled_data.txt"
+# 
+# PERIOD.COUNT <- 5 #we have 5 periods:4wk,8wk,12wk,16wk,20wk
+# PERIOD.SAMPLE.COUNT <- 5 # divide into GK and WKY, each have 5 samples 
+# FEATURES.SD.THRESHOLD <- 0.001
 CLUSTER.HCLUST.H <- 0.75
 PCC.OUT.AMOUNT <- 50
 
 STATE <- c("gk","wt") #gk is case,wt is control
 STATE.COUNT <- 2
+# OFFSET <- 0.00001 # to avoid dev 0
 
 init <- function(args){
   len <- length(args)
@@ -27,12 +34,10 @@ init <- function(args){
 
 set.key.value  <- function(key,value){
   switch(key,
-         "-p" = ,
          "-f" = ,
          "--file.name" = FILE.NAME <<- value,
          "--period.count" = PERIOD.COUNT <<- as.integer(value),
          "--period.sample.count" = PERIOD.SAMPLE.COUNT <<- as.integer(value),
-         "--period.sample.sep" = PERIOD.SAMPLE.SEP <<- as.integer(value),
          "--features.sd.threshold" = FEATURES.SD.THRESHOLD <<- as.numeric(value),
          "--cluster.hclust.h" = CLUSTER.HCLUST.H <<- as.numeric(value),
          "--pcc.out.amount" = PCC.OUT.AMOUNT <<- as.integer(value),
@@ -42,7 +47,7 @@ set.key.value  <- function(key,value){
 print.usage <- function(){
   cat("Usage: gdm4Par.R [-h/--help ] \n
       [-f/--file.name file] [--period.count number] \n
-      [--period.sample.count number] [--period.sample.sep number] \n
+      [--period.sample.count number]  \n
       [--features.sd.threshold float] [--cluster.hclust.h float] \n
       [--pcc.out.amount number] [cores number]\n")
   cat("Details:\n")
@@ -54,8 +59,6 @@ print.usage <- function(){
       the default is 5 periods:4wk,8wk,12wk,16wk,20wk \n")
   cat("\t --period.sample.count   set the number of samples at each period 
       for each sort of rat . the default is 5 \n")
-  cat("\t --period.sample.sep   set the number of samples at each period
-      the default is 10. \n")
   cat("\t --features.sd.threshold   set the threshold of filtering SD
       the default is 0.001 \n")
   cat("\t --cluster.hclust.h   set the h value when we call the cutree function
@@ -84,7 +87,7 @@ divide.files.by.state <- function(file.name){
   wt.start <- (2+PERIOD.SAMPLE.COUNT):(STATE.COUNT*PERIOD.SAMPLE.COUNT+1)
   
   for (i in 1:PERIOD.COUNT){
-    offset <- (i-1)*PERIOD.COUNT*STATE.COUNT
+    offset <- (i-1)*PERIOD.SAMPLE.COUNT*STATE.COUNT
     gk.index <- c(gk.index,gk.start + offset)
     wt.index <- c(wt.index,wt.start + offset)
   }
@@ -97,7 +100,7 @@ divide.files.by.state <- function(file.name){
               sep="\t")
 }
 
-#4wk,8wk,12wk,16wk,20wk
+
 divide.files.by.periods <- function(state,file.name){
   matrix.table <- read.table(paste(state,file.name,sep=""),
                              header=TRUE,sep="")
@@ -108,8 +111,8 @@ divide.files.by.periods <- function(state,file.name){
     z <- z1+PERIOD.SAMPLE.COUNT*i
     z[1]<-1 #row name
     
-    #4wk,8wk,12wk,16wk,20wk
-    period.name <- paste(state,"_matrix_table_",i*4,"wk.txt",sep="")
+
+    period.name <- paste(state,"_matrix_table_",i,".txt",sep="")
     write.table(matrix.table[z],file=period.name,
                 row.names = FALSE,
                 sep="\t")
@@ -123,8 +126,11 @@ sd.test <- function(file.name,features.sd.threshold=0.001){
                                        header=TRUE,sep="")  
   z <- c(2:(PERIOD.SAMPLE.COUNT+1))
   
-  gk.sd <- apply(gk.period.matrix.table[z],1,sd) 
-  wt.sd <- apply(wt.period.matrix.table[z],1,sd)
+#   gk.sd <- apply(gk.period.matrix.table[,z],1,sd) 
+  gk.sd <- apply(gk.period.matrix.table[,z],1,sd) 
+  wt.sd <- apply(wt.period.matrix.table[,z],1,sd)
+  
+  
   
   gene.sd <- gk.sd/wt.sd
   gene.sd.log <- log(gene.sd)
@@ -163,7 +169,7 @@ sd.test <- function(file.name,features.sd.threshold=0.001){
 }
 
 calc.pcc <- function(state,period){
-  filter.table <- read.table(paste(state,"_matrix_table_",period*4,"wk_with_high_sd.txt",sep=""),
+  filter.table <- read.table(paste(state,"_matrix_table_",period,"_with_high_sd.txt",sep=""),
                              header=TRUE,sep="")
   geneIds <- filter.table[,1] #as the row names and column names of matrix
   filter.table <- filter.table[,c(2:(PERIOD.SAMPLE.COUNT+1))]
@@ -174,6 +180,7 @@ calc.pcc <- function(state,period){
   cor.matrix
 }
 
+#generate DNB
 pcc.test <- function(period){
   #control sample 
   #   wt.cor.table <- read.table(paste("wt_",period.name,"_cor_matrix.txt",sep=""),
@@ -197,10 +204,10 @@ pcc.test <- function(period){
   model <- hclust(as.dist(1-gk.cor.table))
   cluster <- cutree(model,h = CLUSTER.HCLUST.H)
   
-  gk.sd <- read.table(paste("gk_matrix_table_",period*4,"wk_high_sd.txt",sep=""),
+  gk.sd <- read.table(paste("gk_matrix_table_",period,"_high_sd.txt",sep=""),
                       header=TRUE,
                       sep="")
-  wt.sd <- read.table(paste("wt_matrix_table_",period*4,"wk_high_sd.txt",sep=""),
+  wt.sd <- read.table(paste("wt_matrix_table_",period,"_high_sd.txt",sep=""),
                       header=TRUE,
                       sep="")
   
@@ -243,15 +250,16 @@ pcc.test <- function(period){
   
   ci.max <- max(ci)
   write.table(ci.max,
-              paste("matrix_table_",period*4,"wk_max_ci.txt",sep=""),
+              paste("matrix_table_",period,"_max_ci.txt",sep=""),
               row.names=FALSE,
               sep="\t",
               col.names=FALSE)
   
   max.model <<- genes[as.integer(unlist(strsplit(as.character(models[which.max(ci)]),",")))]
   #   print(max.model)
-  write.table(as.integer(max.model),
-              paste("matrix_table_",period*4,"wk_dnb.txt",sep=""),
+  #write the dnbs in current period
+  write.table(max.model,
+              paste("matrix_table_",period,"_dnb.txt",sep=""),
               row.names=FALSE,
               sep="\t",
               col.names=FALSE,
@@ -266,11 +274,11 @@ plot.ci <- function(){
   ci <<- numeric()
   periods <-1:PERIOD.COUNT
   for(i in periods){
-    #4wk,8wk,12wk,16wk,20wk
-    period.name <- paste("matrix_table_",i*4,"wk_max_ci.txt",sep="")
+
+    period.name <- paste("matrix_table_",i,"_max_ci.txt",sep="")
     ci[i] <<- read.table(period.name)
   }
-  names(ci) <<- c("4wk","8wk","12wk","16wk","20wk")
+  names(ci) <<- as.character(seq(length(ci)))
   print("ci table:")
   print(as.table(unlist(ci)))
   write.table(ci,
@@ -281,7 +289,7 @@ plot.ci <- function(){
               quote=FALSE)
   ci.maxima.index <- findMaxima(unlist(ci))
   print("ci maxima index:")
-  names(ci.maxima.index) <- paste(ci.maxima.index*4,"wk",sep="")
+  names(ci.maxima.index) <- as.character(ci.maxima.index)
   print(ci.maxima.index)
   write.table(t(ci.maxima.index),
               "ci_maxima_index.txt",
@@ -291,7 +299,7 @@ plot.ci <- function(){
               quote=FALSE)
   png("ci.png")
   plot(periods,unlist(ci),
-       xlab="period (*4 wk)",
+       xlab="period ",
        ylab="ci",
        main="ci growth",
        type="b")
@@ -306,8 +314,7 @@ gdm <- function(){
   }
   
   for (period in 1:PERIOD.COUNT)  {
-    #4wk,8wk,12wk,16wk,20wk
-    file.name <- paste("matrix_table_",period*4,"wk",sep="")
+    file.name <- paste("matrix_table_",period,sep="")
     sd.test(file.name=file.name,features.sd.threshold=FEATURES.SD.THRESHOLD)
     for(state in STATE)  {
       calc.pcc(state,period)
