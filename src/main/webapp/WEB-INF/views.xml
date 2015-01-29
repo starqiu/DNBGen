@@ -18,6 +18,9 @@
 	<definition name="paramInput" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/paramInput.jsp" />
 	</definition>
+	
+	<definition name="error" template="/WEB-INF/views/error.jsp"  >
+	</definition>
 
 	<definition name="operateSuccess" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/operateSuccess.jsp" />
