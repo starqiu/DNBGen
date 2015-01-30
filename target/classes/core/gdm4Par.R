@@ -9,19 +9,30 @@ library(foreach)
 library(doParallel)
 
 # BASE.PATH <- "/host/data/"
-BASE.PATH <- "~/gdm/"
-FILE.NAME <- "liver_labeled_data.txt"
+BASE.PATH <- "./"
+# CASE.FILE.NAME <- "case_data.txt"
+# CONTROL.FILE.NAME <- "control_data.txt"
+CASE.FILE.NAME <- NULL
+CONTROL.FILE.NAME <- NULL
 
-PERIOD.COUNT <- 5 #we have 5 periods:4wk,8wk,12wk,16wk,20wk
-PERIOD.SAMPLE.SEP <- 10 #each period has 10 samples
-PERIOD.SAMPLE.COUNT <- 5 # divide into GK and WKY, each have 5 samples 
-FEATURES.SD.THRESHOLD <- 0.002
-CLUSTER.HCLUST.H <- 0.75
-PCC.OUT.AMOUNT <- 50
+
+# FILE.NAME <- "GSE64538_labeled.txt"
+# PERIOD.COUNT <- 4 # the number of periods
+# PERIOD.SAMPLE.COUNT <- 3 # the number of samples in every period
+# FEATURES.SD.THRESHOLD <- 0.001 # the threshold of sd to select
+
+
+# FILE.NAME <- "liver_labeled_data.txt"
+PERIOD.COUNT <- 5 # the number of periods
+PERIOD.SAMPLE.COUNT <- 5 # the number of samples in every period
+FEATURES.SD.THRESHOLD <- 0.001 # the threshold of sd to select
+
+CLUSTER.HCLUST.H <- 0.75 # the cluster parameter
+PCC.OUT.AMOUNT <- 50 # the number of pcc out we choose to calculate
+
+STATE <- c("case","control") #case is abnormal,control is normal
+STATE.COUNT <- 2 #
 CORES <- 6
-
-STATE <- c("gk","wt") #gk is case,wt is control
-STATE.COUNT <- 2
 
 init <- function(args){
   len <- length(args)
@@ -34,11 +45,10 @@ set.key.value  <- function(key,value){
   switch(key,
          "-p" = ,
          "--base.path" = BASE.PATH <<- value,
-         "-f" = ,
-         "--file.name" = FILE.NAME <<- value,
+         "--case.file.name" = CASE.FILE.NAME <<- value,
+         "--control.file.name" = CONTROL.FILE.NAME <<- value,
          "--period.count" = PERIOD.COUNT <<- as.integer(value),
          "--period.sample.count" = PERIOD.SAMPLE.COUNT <<- as.integer(value),
-         "--period.sample.sep" = PERIOD.SAMPLE.SEP <<- as.integer(value),
          "--features.sd.threshold" = FEATURES.SD.THRESHOLD <<- as.numeric(value),
          "--cluster.hclust.h" = CLUSTER.HCLUST.H <<- as.numeric(value),
          "--pcc.out.amount" = PCC.OUT.AMOUNT <<- as.integer(value),
@@ -47,24 +57,22 @@ set.key.value  <- function(key,value){
 }
 
 print.usage <- function(){
-  cat("Usage: gdm4Par.R [-h/--help | -p/--base.path directory] \n
-      [-f/--file.name file] [--period.count number] \n
-      [--period.sample.count number] [--period.sample.sep number] \n
+  cat("Usage: gdm4Par.R [-h/--help |-p/--base.path directory] \n
+      [-case.file.name file] [-control.file.name file]  \n
+      [--period.count number] [--period.sample.count number]  \n
       [--features.sd.threshold float] [--cluster.hclust.h float] \n
       [--pcc.out.amount number] [cores number]\n")
   cat("Details:\n")
   cat("\t -h/--help   show the usage of gdm4Par.R \n")
-  cat("\t -p/--base.path   set the base data outputing  directory of program .
-      the value could be ~/gdm/ \n")
-  cat("\t -f/--file.name   set the name of data file,this file should be in 
-                          base.path/sourceData directory. 
-      the default is liver_labeled_data.txt \n")
-  cat("\t --period.count   set the number of periods we have
-      the default is 5 periods:4wk,8wk,12wk,16wk,20wk \n")
-  cat("\t --period.sample.count   set the number of samples at each period 
-      for each sort of rat . the default is 5 \n")
-  cat("\t --period.sample.sep   set the number of samples at each period
-      the default is 10. \n")
+  cat("\t -p/--base.path   set the path of gdm4Par.R . the default value is ./ \n")
+  cat("\t --case.file.name   set the name of case data file, case is abnormal data,\n
+      this file should be in ./sourceData directory.  \n")
+  cat("\t --control.file.name   set the name of case data file, control is normal data,\n
+      this file should be in ./sourceData directory.  \n")
+  cat("\t --period.count   set the number of periods  .
+      the default is 5  \n")
+  cat("\t --period.sample.count   set the number of samples in every period . 
+      the default is 5 \n")
   cat("\t --features.sd.threshold   set the threshold of filtering SD
       the default is 0.001 \n")
   cat("\t --cluster.hclust.h   set the h value when we call the cutree function
@@ -75,7 +83,6 @@ print.usage <- function(){
       the default is 6 \n")
   cat("Description:\n")
   cat("\t  if -h/--help is appeared,the other parameters is ignored. 
-      otherwise base.path is necessary.
       \t  if you want have more cores ,you can set it larger value ,
       the program may run faster.
       \t  change features.sd.threshold may have suprise. it's good encough
@@ -83,99 +90,118 @@ print.usage <- function(){
       \n")
 }
 
-#GK , WT
-divide.files.by.state <- function(file.name){
-  matrix.table <- read.table(paste(BASE.PATH,"sourceData/",file.name,sep=""),
-                             header=TRUE,sep="")
-#   gk.index <- c(1,2:6,12:16,22:26,32:36,42:46)
-#   wt.index <- c(1,7:11,17:21,27:31,37:41,47:51)
-  
-  gk.index <- c(1)
-  wt.index <- c(1)
-  gk.start <- 2:(PERIOD.SAMPLE.COUNT+1)
-  wt.start <- (2+PERIOD.SAMPLE.COUNT):(STATE.COUNT*PERIOD.SAMPLE.COUNT+1)
-  
-  for (i in 1:PERIOD.COUNT){
-    offset <- (i-1)*PERIOD.COUNT*STATE.COUNT
-    gk.index <- c(gk.index,gk.start + offset)
-    wt.index <- c(wt.index,wt.start + offset)
-  }
-  
-  write.table(matrix.table[gk.index],file=paste(BASE.PATH,"gk_data.txt",sep=""),
-              row.names = FALSE,
-              sep="\t")
-  write.table(matrix.table[wt.index],file=paste(BASE.PATH,"wt_data.txt",sep=""),
-              row.names = FALSE,
-              sep="\t")
-}
-
-#4wk,8wk,12wk,16wk,20wk
 divide.files.by.periods <- function(state,file.name){
-  matrix.table <- read.table(paste(BASE.PATH,state,file.name,sep=""),
+  matrix.table <- read.table(file.path("sourceData",file.name),
                              header=TRUE,sep="")
   period.name <- ""
   z <- c((1-PERIOD.SAMPLE.COUNT):1)  
   
   foreach(i = 1:PERIOD.COUNT) %dopar% {
     z <- z+PERIOD.SAMPLE.COUNT*i
-    z[1]<-1
+    z[1]<-1 #row name
     
-    #4wk,8wk,12wk,16wk,20wk
-    period.name <- paste(state,"_matrix_table_",i*4,"wk.txt",sep="")
-    write.table(matrix.table[z],file=paste(BASE.PATH,period.name,sep=""),
+    period.name <- paste(state,"_matrix_table_",i,".txt",sep="")
+    # the matrix in each state in every period
+    write.table(matrix.table[z],file=period.name,
                 row.names = FALSE,
                 sep="\t")
   }
 }
 
 sd.test <- function(file.name,features.sd.threshold=0.001){
-  gk.period.matrix.table <- read.table(paste(BASE.PATH,"gk_",file.name,".txt",sep=""),
-                                       header=TRUE,sep="")  
-  wt.period.matrix.table <- read.table(paste(BASE.PATH,"wt_",file.name,".txt",sep=""),
-                                       header=TRUE,sep="")  
+  case.period.matrix.table <- read.table(paste("case_",file.name,".txt",sep=""),
+                                         header=TRUE,sep="")  
+  control.period.matrix.table <- read.table(paste("control_",file.name,".txt",sep=""),
+                                            header=TRUE,sep="")  
   z <- c(2:(PERIOD.SAMPLE.COUNT+1))
   
-  gk.sd <- apply(gk.period.matrix.table[z],1,sd) 
-  wt.sd <- apply(wt.period.matrix.table[z],1,sd)
+  case.sd <- apply(case.period.matrix.table[,z],1,sd) 
+  control.sd <- apply(control.period.matrix.table[,z],1,sd)
   
-  gene.sd <- gk.sd/wt.sd
+  no.zero.index <- which((case.sd != 0) & (control.sd != 0))
+  
+  gene.sd <- case.sd[no.zero.index]/control.sd[no.zero.index]
   gene.sd.log <- log(gene.sd)
   gene.sd.log.p <- unlist(lapply(gene.sd.log,pnorm,mean=mean(gene.sd.log),sd=sd(gene.sd.log)))
   high.sd.index <- which((gene.sd.log.p <= features.sd.threshold) | (gene.sd.log.p >= (1-features.sd.threshold))) 
+  source.high.sd.index <- no.zero.index[high.sd.index]
   #li's method
   #   sd.log.threshold <- pnorm(features.sd.threshold/2,mean=mean(gene.sd.log),sd=sd(gene.sd.log))
   #   high.sd.index <- which(abs(gene.sd.log) >= sd.log.threshold)
   
+  # the sd of genes 
   write.table(gene.sd,
-              paste(BASE.PATH,file.name,"_sd.txt",sep=""),
+              paste(file.name,"_sd.txt",sep=""),
               row.names=FALSE,
               sep="\t")
+  # the sd of genes which has a big value
   write.table(gene.sd[high.sd.index],
-              paste(BASE.PATH,file.name,"_high_sd.txt",sep=""),
+              paste(file.name,"_high_sd.txt",sep=""),
               row.names=FALSE,
               sep="\t")
+  # the sd of case data which has a big value
+  write.table(case.sd[source.high.sd.index],
+              paste("case_",file.name,"_high_sd.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+  # the sd of control data which has a big value
+  write.table(control.sd[source.high.sd.index],
+              paste("control_",file.name,"_high_sd.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+  # the case data whose sd has a big value
+  write.table(case.period.matrix.table[source.high.sd.index,],
+              paste("case_",file.name,"_with_high_sd.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+  # the  control data whose sd has a big value
+  write.table(control.period.matrix.table[source.high.sd.index,],
+              paste("control_",file.name,"_with_high_sd.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+}
+
+sd.test.with.one.state <- function(file.name,features.sd.threshold=0.001){
+  case.period.matrix.table <- read.table(paste("case_",file.name,".txt",sep=""),
+                                         header=TRUE,sep="")  
+  z <- c(2:(PERIOD.SAMPLE.COUNT+1))
   
-  write.table(gk.sd[high.sd.index],
-              paste(BASE.PATH,"gk_",file.name,"_high_sd.txt",sep=""),
-              row.names=FALSE,
-              sep="\t")
-  write.table(wt.sd[high.sd.index],
-              paste(BASE.PATH,"wt_",file.name,"_high_sd.txt",sep=""),
-              row.names=FALSE,
-              sep="\t")
+  case.sd <- apply(case.period.matrix.table[,z],1,sd) 
   
-  write.table(gk.period.matrix.table[high.sd.index,],
-              paste(BASE.PATH,"gk_",file.name,"_with_high_sd.txt",sep=""),
+  no.zero.index <- which(case.sd != 0)
+  gene.sd <- case.sd
+  gene.sd.log <- log(gene.sd)
+  gene.sd.log.p <- unlist(lapply(gene.sd.log,pnorm,mean=mean(gene.sd.log),sd=sd(gene.sd.log)))
+  high.sd.index <- which((gene.sd.log.p <= features.sd.threshold) | (gene.sd.log.p >= (1-features.sd.threshold))) 
+  source.high.sd.index <- no.zero.index[high.sd.index]
+  #li's method
+  #   sd.log.threshold <- pnorm(features.sd.threshold/2,mean=mean(gene.sd.log),sd=sd(gene.sd.log))
+  #   high.sd.index <- which(abs(gene.sd.log) >= sd.log.threshold)
+  
+  # the sd of genes 
+  write.table(gene.sd,
+              paste(file.name,"_sd.txt",sep=""),
               row.names=FALSE,
               sep="\t")
-  write.table(wt.period.matrix.table[high.sd.index,],
-              paste(BASE.PATH,"wt_",file.name,"_with_high_sd.txt",sep=""),
+  # the sd of genes which has a big value
+  write.table(gene.sd[high.sd.index],
+              paste(file.name,"_high_sd.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+  # the sd of case data which has a big value
+  write.table(case.sd[source.high.sd.index],
+              paste("case_",file.name,"_high_sd.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+  # the case data whose sd has a big value
+  write.table(case.period.matrix.table[source.high.sd.index,],
+              paste("case_",file.name,"_with_high_sd.txt",sep=""),
               row.names=FALSE,
               sep="\t")
 }
 
 calc.pcc <- function(state,period){
-  filter.table <- read.table(paste(BASE.PATH,state,"_matrix_table_",period*4,"wk_with_high_sd.txt",sep=""),
+  filter.table <- read.table(paste(state,"_matrix_table_",period,"_with_high_sd.txt",sep=""),
                              header=TRUE,sep="")
   geneIds <- filter.table[,1] #as the row names and column names of matrix
   filter.table <- filter.table[,c(2:(PERIOD.SAMPLE.COUNT+1))]
@@ -186,41 +212,42 @@ calc.pcc <- function(state,period){
   cor.matrix
 }
 
+#generate DNB 
 pcc.test <- function(period){
   #control sample 
-  #   wt.cor.table <- read.table(paste(BASE.PATH,"wt_",period.name,"_cor_matrix.txt",sep=""),
+  #   control.cor.table <- read.table(paste("control_",period.name,"_cor_matrix.txt",sep=""),
   #                              header=TRUE,sep="")
-  wt.cor.table <- calc.pcc("wt",period)
-  #   names(wt.cor.table) <- row.names(wt.cor.table)
-  genes <- row.names(wt.cor.table)
+  control.cor.table <- calc.pcc(STATE[2],period)
+  #   names(control.cor.table) <- row.names(control.cor.table)
+  genes <- row.names(control.cor.table)
   genes.number <- length(genes)
   genes.index <- 1:genes.number
   #matrix is more lightweight
-  #   wt.cor.table <- as.matrix(wt.cor.table)
+  #   control.cor.table <- as.matrix(control.cor.table)
   
   #case sample
-  #   gk.cor.table <- read.table(paste(BASE.PATH,"gk_",period.name,"_cor_matrix.txt",sep=""),
+  #   case.cor.table <- read.table(paste("case_",period.name,"_cor_matrix.txt",sep=""),
   #                              header=TRUE,sep="")
-  gk.cor.table <- calc.pcc("gk",period)
-  #   names(gk.cor.table) <- row.names(gk.cor.table)
+  case.cor.table <- calc.pcc(STATE[1],period)
+  #   names(case.cor.table) <- row.names(case.cor.table)
   #   #matrix is more lightweight
-  #   gk.cor.table <- as.matrix(gk.cor.table)
+  #   case.cor.table <- as.matrix(case.cor.table)
   
-  model <- hclust(as.dist(1-gk.cor.table))
+  model <- hclust(as.dist(1-case.cor.table))
   cluster <- cutree(model,h = CLUSTER.HCLUST.H)
   
-  gk.sd <- read.table(paste(BASE.PATH,"gk_matrix_table_",period*4,"wk_high_sd.txt",sep=""),
-                      header=TRUE,
-                      sep="")
-  wt.sd <- read.table(paste(BASE.PATH,"wt_matrix_table_",period*4,"wk_high_sd.txt",sep=""),
-                      header=TRUE,
-                      sep="")
+  case.sd <- read.table(paste("case_matrix_table_",period,"_high_sd.txt",sep=""),
+                        header=TRUE,
+                        sep="")
+  control.sd <- read.table(paste("control_matrix_table_",period,"_high_sd.txt",sep=""),
+                           header=TRUE,
+                           sep="")
   
-  df.with.cluster.genes.sds <- cbind(cluster,genes.index,gk.sd,wt.sd)
-  colnames(df.with.cluster.genes.sds) <-c("cluster","genes.index","gk.sd","wt.sd")
+  df.with.cluster.genes.sds <- cbind(cluster,genes.index,case.sd,control.sd)
+  colnames(df.with.cluster.genes.sds) <-c("cluster","genes.index","case.sd","control.sd")
   df.aggr.by.cluster <- ddply(df.with.cluster.genes.sds,.(cluster),summarize,
                               models = paste(genes.index,collapse=","),
-                              sd = mean(gk.sd)/mean(wt.sd),
+                              sd = mean(case.sd)/mean(control.sd),
                               .parallel=TRUE)
   colnames(df.aggr.by.cluster) <-c("cluster","models","sd")
   
@@ -230,8 +257,8 @@ pcc.test <- function(period){
   
   
   #the diag of table is meaningless
-  diag(wt.cor.table) <- NA
-  diag(gk.cor.table) <- NA
+  diag(control.cor.table) <- NA
+  diag(case.cor.table) <- NA
   
   pcc.in.mean <- numeric()
   pcc.out.mean <- numeric()
@@ -239,116 +266,189 @@ pcc.test <- function(period){
   for(cluster.index in 1:cluster.number){
     cur.model <- as.integer(unlist(strsplit(as.character(models[cluster.index]),",")))
     model.size <- length(cur.model)
-    wt.pcc.in <- as.vector(wt.cor.table[cur.model,cur.model])
-    gk.pcc.in <- as.vector(gk.cor.table[cur.model,cur.model])
+    control.pcc.in <- as.vector(control.cor.table[cur.model,cur.model])
+    case.pcc.in <- as.vector(case.cor.table[cur.model,cur.model])
     
-    wt.pcc.out <- as.vector(wt.cor.table[-cur.model,cur.model])
-    gk.pcc.out <- as.vector(gk.cor.table[-cur.model,cur.model])
+    control.pcc.out <- as.vector(control.cor.table[-cur.model,cur.model])
+    case.pcc.out <- as.vector(case.cor.table[-cur.model,cur.model])
     
-    pcc.in.mean[cluster.index] <- (sum(gk.pcc.in,na.rm=TRUE)-model.size)/(sum(wt.pcc.in,na.rm=TRUE)-model.size)
+    pcc.in.mean[cluster.index] <- (sum(case.pcc.in,na.rm=TRUE)-model.size)/(sum(control.pcc.in,na.rm=TRUE)-model.size)
     
-    pcc.out <- cbind(wt.pcc.out,gk.pcc.out)
+    pcc.out <- cbind(control.pcc.out,case.pcc.out)
     pcc.out <- pcc.out[order(-pcc.out[,1]),]
-    pcc.out <- pcc.out[1:(PCC.OUT.AMOUNT*model.size),]
+    out.index <- PCC.OUT.AMOUNT*model.size
+    out.index <- ifelse(out.index<nrow(pcc.out),out.index,nrow(pcc.out))
+    pcc.out <- pcc.out[1:out.index,]
     pcc.out.mean[cluster.index] <- mean(pcc.out[,2],na.rm=TRUE)/mean(pcc.out[,1],na.rm=TRUE)   
   }
   ci <- pcc.in.mean*(df.aggr.by.cluster$sd)/pcc.out.mean
   
+  # the final CI value in the period
   ci.max <- max(ci)
   write.table(ci.max,
-              paste(BASE.PATH,"matrix_table_",period*4,"wk_max_ci.txt",sep=""),
+              paste("matrix_table_",period,"_max_ci.txt",sep=""),
               row.names=FALSE,
               sep="\t",
               col.names=FALSE)
   
+  # this is the gene ids in  'DNB' ,every period have a 'DNB' ,
+  # but the real DNB is whose CI value is the maxima
   max.model <<- genes[as.integer(unlist(strsplit(as.character(models[which.max(ci)]),",")))]
-#   print(max.model)
-  write.table(as.integer(max.model),
-              paste(BASE.PATH,"matrix_table_",period*4,"wk_dnb.txt",sep=""),
+  #   print(max.model)
+  #write the dnbs in current period
+  write.table(max.model,
+              paste("matrix_table_",period,"_dnb.txt",sep=""),
               row.names=FALSE,
               sep="\t",
               col.names=FALSE,
               quote=FALSE)
 }
 
+#generate DNB  for one state
+pcc.test.with.one.state <- function(period){
+  case.cor.table <- calc.pcc(STATE[1],period)
+  genes <- row.names(case.cor.table)
+  genes.number <- length(genes)
+  genes.index <- 1:genes.number
+  
+  model <- hclust(as.dist(1-case.cor.table))
+  cluster <- cutree(model,h = CLUSTER.HCLUST.H)
+  
+  case.sd <- read.table(paste("case_matrix_table_",period,"_high_sd.txt",sep=""),
+                        header=TRUE,
+                        sep="")
+  
+  df.with.cluster.genes.sds <- cbind(cluster,genes.index,case.sd)
+  colnames(df.with.cluster.genes.sds) <-c("cluster","genes.index","case.sd")
+  df.aggr.by.cluster <- ddply(df.with.cluster.genes.sds,.(cluster),summarize,
+                              models = paste(genes.index,collapse=","),
+                              sd = mean(case.sd))
+  colnames(df.aggr.by.cluster) <-c("cluster","models","sd")
+  
+  cluster.aggr <- df.aggr.by.cluster$cluster
+  models <- df.aggr.by.cluster$models
+  cluster.number <- length(cluster.aggr)
+  
+  
+  #the diag of table is meaningless
+  diag(case.cor.table) <- NA
+  
+  pcc.in.mean <- numeric()
+  pcc.out.mean <- numeric()
+  
+  for(cluster.index in 1:cluster.number){
+    cur.model <- as.integer(unlist(strsplit(as.character(models[cluster.index]),",")))
+    model.size <- length(cur.model)
+    case.pcc.in <- as.vector(case.cor.table[cur.model,cur.model])
+    
+    case.pcc.out <- as.vector(case.cor.table[-cur.model,cur.model])
+    
+    pcc.in.mean[cluster.index] <- sum(case.pcc.in,na.rm=TRUE)-model.size
+    
+    case.pcc.out <- case.pcc.out[order(-case.pcc.out)]
+    out.index <- PCC.OUT.AMOUNT*model.size
+    out.index <- ifelse(out.index<length(case.pcc.out),out.index,length(case.pcc.out))
+    case.pcc.out <- case.pcc.out[1:out.index]
+    pcc.out.mean[cluster.index] <- mean(case.pcc.out,na.rm=TRUE)
+  }
+  ci <- pcc.in.mean*(df.aggr.by.cluster$sd)/pcc.out.mean
+  
+  # the final CI value in the period
+  ci.max <- max(ci)
+  write.table(ci.max,
+              paste("matrix_table_",period,"_max_ci.txt",sep=""),
+              row.names=FALSE,
+              sep="\t",
+              col.names=FALSE)
+  
+  # this is the gene ids in  'DNB' ,every period have a 'DNB' ,
+  # but the real DNB is whose CI value is the maxima
+  max.model <<- genes[as.integer(unlist(strsplit(as.character(models[which.max(ci)]),",")))]
+  #   print(max.model)
+  #write the dnbs in current period
+  write.table(max.model,
+              paste("matrix_table_",period,"_dnb.txt",sep=""),
+              row.names=FALSE,
+              sep="\t",
+              col.names=FALSE,
+              quote=FALSE)
+}
+
+#find the maxima values of an arrayL
 findMaxima <- function(array){
   which(diff(c(1,sign(diff(array)),-1)) == -2)
 }
 
 plot.ci <- function(){
-  ci <<- numeric()
+  
+  ci <<- numeric()# this is the final CI result of all periods
   periods <-1:PERIOD.COUNT
   for(i in periods){
-    #4wk,8wk,12wk,16wk,20wk
-    period.name <- paste("matrix_table_",i*4,"wk_max_ci.txt",sep="")
-    ci[i] <<- read.table(paste(BASE.PATH,period.name,sep=""))
+    
+    period.name <- paste("matrix_table_",i,"_max_ci.txt",sep="")
+    ci[i] <<- read.table(period.name)
   }
-  names(ci) <<- c("4wk","8wk","12wk","16wk","20wk")
+  names(ci) <<- as.character(seq(length(ci)))
   print("ci table:")
   print(as.table(unlist(ci)))
   write.table(ci,
-              paste(BASE.PATH,"all_ci.txt",sep=""),
+              "all_ci.txt",
               row.names=FALSE,
               sep="\t",
               col.names=names(ci),
               quote=FALSE)
-  ci.maxima.index <- findMaxima(unlist(ci))
+  ci.maxima.index <- findMaxima(unlist(ci))# this is period index where DNB in
   print("ci maxima index:")
+  names(ci.maxima.index) <- as.character(ci.maxima.index)
   print(ci.maxima.index)
   write.table(t(ci.maxima.index),
-              paste(BASE.PATH,"ci_maxima_index.txt",sep=""),
+              "ci_maxima_index.txt",
               row.names=FALSE,
               sep="\t",
               col.names=FALSE,
               quote=FALSE)
-  setwd(BASE.PATH)
   png("ci.png")
   plot(periods,unlist(ci),
-       xlab="period (*4 wk)",
+       xlab="period ",
        ylab="ci",
        main="ci growth",
        type="b")
   dev.off()
 }
 
-# compare.to.example <- function(){
-#   example.dnb.t1 <-read.table(paste(BASE.PATH,"liver_DNB_t1.txt",sep=""))[,1]
-#   example.dnb.t4 <-read.table(paste(BASE.PATH,"liver_DNB_t4.txt",sep=""))[,1]
-#   dnb.4wk <-read.table(paste(BASE.PATH,"matrix_table_4wk_dnb.txt",sep=""))[,1]
-#   dnb.16wk <-read.table(paste(BASE.PATH,"matrix_table_16wk_dnb.txt",sep=""))[,1]
-#   
-#   #find common features
-#   common.features.t1 <- intersect(example.dnb.t1,dnb.4wk)
-#   write.table(common.features.t1,paste(BASE.PATH,"common_4wk_dnb.txt",sep=""),sep="\n",
-#               col.names=FALSE,row.names=FALSE)
-#   common.features.t4 <- intersect(example.dnb.t4,dnb.16wk)
-#   write.table(common.features.t4,paste(BASE.PATH,"common_16wk_dnb.txt",sep=""),sep="\n",
-#               col.names=FALSE,row.names=FALSE)
-# }
-
-
 gdm <- function(){
-  registerDoParallel(cores=CORES)
   
-  divide.files.by.state(FILE.NAME)
-  foreach(state = STATE) %dopar% {
-    divide.files.by.periods(state,"_data.txt")
+  if(is.null(CASE.FILE.NAME)){
+    stop("you should set --case.file.name")
+  }else{
+    if(is.null(CONTROL.FILE.NAME)){
+      STATE.COUNT <<- 1 #no control data
+    }
   }
   
-  foreach (period = 1:PERIOD.COUNT) %dopar% {
-#     for (period in 1:PERIOD.COUNT)  {
-    #4wk,8wk,12wk,16wk,20wk
-    file.name <- paste("matrix_table_",period*4,"wk",sep="")
-    sd.test(file.name=file.name,features.sd.threshold=FEATURES.SD.THRESHOLD)
-    foreach(state = STATE) %dopar% {
-      calc.pcc(state,period)
+  registerDoParallel(cores=CORES)  
+  divide.files.by.periods(STATE[1],CASE.FILE.NAME)
+  
+  if(STATE.COUNT == 2){
+    divide.files.by.periods(STATE[2],CONTROL.FILE.NAME)
+    
+    foreach (period = 1:PERIOD.COUNT) %dopar% {
+      file.name <- paste("matrix_table_",period,sep="")
+      sd.test(file.name=file.name,features.sd.threshold=FEATURES.SD.THRESHOLD)
+      pcc.test(period)
     }
-    pcc.test(period)
+  }else{# one state
+    foreach (period = 1:PERIOD.COUNT) %dopar% {
+      file.name <- paste("matrix_table_",period,sep="")
+      sd.test.with.one.state(file.name=file.name,features.sd.threshold=FEATURES.SD.THRESHOLD)
+      pcc.test.with.one.state(period)
+    }
   }
   plot.ci()
 }
 
 main <- function(){
+
   args <- commandArgs(TRUE)
   print(args)
   if ((length(args) %% 2 != 0) ){
@@ -357,6 +457,10 @@ main <- function(){
     if(length(args) != 0){
       init(args)
     }
+    
+    setwd(BASE.PATH)
+    print(paste("working directory : " , BASE.PATH))
+    
     gdm()
   }
 }

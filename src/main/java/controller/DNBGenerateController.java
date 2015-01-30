@@ -16,6 +16,7 @@ import model.CiData;
 import model.DnbData;
 import net.sf.json.JSONArray;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -91,12 +92,10 @@ public class DNBGenerateController {
 
 		String[] periods = getAllDnbPeriods();
 
-		String weekPeriod = "";
 		for (String period : periods) {
 			DnbData dnb = new DnbData();
-			weekPeriod = String.valueOf(Integer.parseInt(period) * 4) + "wk";
-			dnb.setPeriod(weekPeriod);
-			dnb.setIds(getDnbGeneIds(weekPeriod));
+			dnb.setPeriod(period);
+			dnb.setIds(getDnbGeneIds(period));
 			dnbs.add(dnb);
 		}
 		log.info("get DNB data successfully !");
@@ -146,11 +145,11 @@ public class DNBGenerateController {
 	@RequestMapping(value = "genDNB.do")
 	public String genDNB(HttpServletRequest request) {
 		String basePath = classPath; // request.getParameter("basePath");
-		String fileName = request.getParameter("fileName");
+		String caseFileName = request.getParameter("caseFileName");
+		String controlFileName = request.getParameter("controlFileName");
 
 		String periodCount = request.getParameter("periodCount");
 		String periodSampleCount = request.getParameter("periodSampleCount");
-		String periodSampleSep = request.getParameter("periodSampleSep");
 
 		String featuresSdThreshold = request
 				.getParameter("featuresSdThreshold");
@@ -158,16 +157,22 @@ public class DNBGenerateController {
 		String pccOutAmount = request.getParameter("pccOutAmount");
 
 		String cores = request.getParameter("cores");
-
-		String cmd = classPath + "core/gdm4Par.R " + " -p " + basePath
-				+ "  -f  " + fileName + "  --period.count   " + periodCount
-				+ "  --period.sample.count  " + periodSampleCount
-				+ "  --period.sample.sep " + periodSampleSep
-				+ " --features.sd.threshold " + featuresSdThreshold
-				+ " --cluster.hclust.h " + clusterHclustH
-				+ " --pcc.out.amount " + pccOutAmount + " --cores " + cores;
-		log.info("cmd:" + cmd);
-		execShellCmd(cmd);
+		
+		StringBuffer cmd = new StringBuffer();
+		cmd.append(classPath).append("core/gdm4Par.R ").append(" -p ").append(basePath)
+			.append("  --case.file.name  " ).append(caseFileName)
+			.append("  --period.count   " ).append(periodCount)
+			.append("  --period.sample.count  ").append(periodSampleCount)
+			.append(" --features.sd.threshold  " ).append(featuresSdThreshold)
+			.append(" --cluster.hclust.h  ").append(clusterHclustH)
+			.append(" --pcc.out.amount  " ).append(pccOutAmount)
+			.append(" --cores " ).append(cores);
+		if (!StringUtils.isEmpty(controlFileName)) {
+			cmd.append("  --control.file.name  ").append(controlFileName);
+		}
+		
+		log.info("cmd:" + cmd.toString());
+		execShellCmd(cmd.toString());
 
 		return charts(request);
 	}

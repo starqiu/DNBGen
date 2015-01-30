@@ -6,7 +6,7 @@
 #' 
 library(plyr)
 
-# CASE.FILE.NAME <- "case_data.txt"
+#CASE.FILE.NAME <- "case_data.txt"
 # CONTROL.FILE.NAME <- "control_data.txt"
 CASE.FILE.NAME <- NULL
 CONTROL.FILE.NAME <- NULL
@@ -53,7 +53,7 @@ print.usage <- function(){
       [-case.file.name file]  [--period.count number] \n
       [--period.sample.count number]  \n
       [--features.sd.threshold float] [--cluster.hclust.h float] \n
-      [--pcc.out.amount number] [cores number]\n")
+      [--pcc.out.amount number] \n")
   cat("Details:\n")
   cat("\t -h/--help   show the usage of gdm4Par.R \n")
   cat("\t --case.file.name   set the name of case data file, case is abnormal data,\n

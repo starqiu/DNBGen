@@ -51,7 +51,7 @@
 					<c:forEach items="${uploadedFiles }" varStatus="s">
 						<c:choose>
 							<c:when test="${s.index%2 ==1 }">
-								<tr class="success">
+								<tr class="label-success">
 									<td>${s.index }</td>
 									<td>${uploadedFiles[s.index].fileName }</td>
 									<td>${uploadedFiles[s.index].size } B</td>
@@ -65,7 +65,7 @@
 								</tr>
 							</c:when>
 							<c:otherwise>
-								<tr class="info">
+								<tr class="label-info">
 									<td>${s.index }</td>
 									<td>${uploadedFiles[s.index].fileName }</td>
 									<td>${uploadedFiles[s.index].size } B</td>

@@ -37,12 +37,5 @@
 	<script type="text/javascript">
 		$("#dataManage").addClass("active");
 	</script>
-	<%--
-	
-	<script src="<c:url value='/js/excanvas.min.js' />"></script>
-	<script src="<c:url value='/js/jquery.flot.js' />"></script>
-	<script src="<c:url value='/js/jquery.flot.pie.js' />"></script>
-	<script src="<c:url value='/js/jquery.flot.orderBars.js' />"></script>
-	<script src="<c:url value='/js/jquery.flot.resize.js' />"></script>
---%></body>
+</body>
 </html>
