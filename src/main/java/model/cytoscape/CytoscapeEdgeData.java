@@ -11,6 +11,9 @@
  */
 package model.cytoscape;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 实现功能： Cytoscape Edge Data
  * <p>
@@ -24,18 +27,23 @@ public class CytoscapeEdgeData {
 	private String id;
 	private String source;
 	private String target;
-	private String data_type;
-	private String networks;
-	private String gene_name;
+	private String data_type = "notDnb";
+	private List<String> networks=new ArrayList<String>() ;
+	private String name="default";
 	private int highlight = 0;
 	private double normalized_max_weight;
+
+	public CytoscapeEdgeData() {
+		super();
+		networks.add("notDnb");
+	}
 
 	public String getData_type() {
 		return data_type;
 	}
 
-	public String getGene_name() {
-		return gene_name;
+	public String getName() {
+		return name;
 	}
 
 	public int getHighlight() {
@@ -46,7 +54,7 @@ public class CytoscapeEdgeData {
 		return id;
 	}
 
-	public String getNetworks() {
+	public List<String>  getNetworks() {
 		return networks;
 	}
 
@@ -62,8 +70,8 @@ public class CytoscapeEdgeData {
 		this.data_type = data_type;
 	}
 
-	public void setGene_name(String gene_name) {
-		this.gene_name = gene_name;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setHighlight(int highlight) {
@@ -74,7 +82,7 @@ public class CytoscapeEdgeData {
 		this.id = id;
 	}
 
-	public void setNetworks(String networks) {
+	public void setNetworks(List<String>  networks) {
 		this.networks = networks;
 	}
 

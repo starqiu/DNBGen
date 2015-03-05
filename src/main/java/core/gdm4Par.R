@@ -129,6 +129,11 @@ sd.test <- function(file.name,features.sd.threshold=0.001){
   #   sd.log.threshold <- pnorm(features.sd.threshold/2,mean=mean(gene.sd.log),sd=sd(gene.sd.log))
   #   high.sd.index <- which(abs(gene.sd.log) >= sd.log.threshold)
   
+  # the valid genes 
+  write.table(case.period.matrix.table[no.zero.index,1],
+              paste(file.name,"_genes.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
   # the sd of genes 
   write.table(gene.sd,
               paste(file.name,"_sd.txt",sep=""),
@@ -178,6 +183,11 @@ sd.test.with.one.state <- function(file.name,features.sd.threshold=0.001){
   #   sd.log.threshold <- pnorm(features.sd.threshold/2,mean=mean(gene.sd.log),sd=sd(gene.sd.log))
   #   high.sd.index <- which(abs(gene.sd.log) >= sd.log.threshold)
   
+  # the valid genes 
+  write.table(case.period.matrix.table[no.zero.index,1],
+              paste(file.name,"_genes.txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
   # the sd of genes 
   write.table(gene.sd,
               paste(file.name,"_sd.txt",sep=""),
@@ -232,6 +242,13 @@ pcc.test <- function(period){
   #   names(case.cor.table) <- row.names(case.cor.table)
   #   #matrix is more lightweight
   #   case.cor.table <- as.matrix(case.cor.table)
+  
+  # the pcc value,as the edge
+  write.table(case.cor.table/control.cor.table,
+              paste("matrix_table_pcc_"+period+".txt",sep=""),
+              row.names=FALSE,
+              sep="\t")
+  
   
   model <- hclust(as.dist(1-case.cor.table))
   cluster <- cutree(model,h = CLUSTER.HCLUST.H)

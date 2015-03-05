@@ -21,6 +21,9 @@
 	<div class="widget-content">
 
 		<div id="cy" class="chart-holder">
+			<script type="text/javascript">
+			drawCytoPic('${cytoElement}');
+			</script>
 		</div>
 		<!-- /donut-chart -->
 
@@ -31,5 +34,5 @@
 <!-- /widget -->
 
 <script type="text/javascript">
-	$("#grid").addClass("active");
+	$("#cytoscapePic").addClass("active");
 </script>

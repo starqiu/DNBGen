@@ -35,7 +35,7 @@
 
 	<li id="charts"><a href="charts.do"> <i class="icon-signal"></i> Charts </a></li>
 
-	<li id="grid"><a href="grid.do"> <i class="icon-th-large"></i>Cytoscape <span class="label label-warning pull-right">5</span> </a></li>
+	<li id="cytoscapePic"><a href="cytoscapePic.do"> <i class="icon-th-large"></i>Cytoscape <span class="label label-warning pull-right">5</span> </a></li>
 			
 	<%--<li><a href="account.do"> <i class="icon-user"></i> User
 			Account </a></li>

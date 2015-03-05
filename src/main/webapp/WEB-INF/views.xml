@@ -30,8 +30,8 @@
 		<put-attribute name="content" value="/WEB-INF/views/operateFailed.jsp" />
 	</definition>
 
-	<definition name="grid" extends="template">
-		<put-attribute name="content" value="/WEB-INF/views/grid.jsp" />
+	<definition name="cytoscapePic" extends="template">
+		<put-attribute name="content" value="/WEB-INF/views/cytoscapePic.jsp" />
 	</definition>
 	<definition name="faq" extends="template">
 		<put-attribute name="content" value="/WEB-INF/views/faq.jsp" />
