@@ -14,9 +14,15 @@ package utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -31,7 +37,26 @@ import org.apache.log4j.Logger;
  */
 public class CommonUtils {
 
-	public static final Logger log = Logger.getLogger(DnbUtils.class);
+	public static final Logger log = Logger.getLogger(CommonUtils.class);
+
+	public static void geneateGdmCsv(String classPath) {
+
+		String propPath = classPath + "tempVariables.properties";
+		String periodCount = CommonUtils.getValueByKeyFromConfig(
+				"period.count", propPath);
+		String periodSampleCount = CommonUtils.getValueByKeyFromConfig(
+				"period.sample.count", propPath);
+		String cores = CommonUtils.getValueByKeyFromConfig("cores", propPath);
+
+		StringBuffer cmdSb = new StringBuffer();
+		cmdSb.append(classPath).append("core/cytoscape.R ").append(" -p ")
+				.append(classPath).append("  --period.count   ")
+				.append(periodCount).append("  --period.sample.count  ")
+				.append(periodSampleCount).append(" --cores ").append(cores);
+		String cmd = cmdSb.toString();
+		log.info(cmd);
+		execShellCmd(cmd);
+	}
 
 	/**
 	 * @param cmd
@@ -61,6 +86,7 @@ public class CommonUtils {
 		} catch (Exception e) {
 			log.error("exec shell cmd error", e);
 		}
+		log.info("execute shell command successfully!");
 	}
 
 	public static List<String> queryUploadFileNames(String classPath) {
@@ -81,4 +107,51 @@ public class CommonUtils {
 		return fileList;
 	}
 
+	public static String getValueByKeyFromConfig(String key, String propFilePath) {
+		Properties prop = new Properties();
+		// String propFileName = "utils/tempVariables.properties";
+
+		InputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(propFilePath);
+			prop.load(inputStream);
+		} catch (IOException e) {
+			log.error("IOException", e);
+		}
+		if (inputStream == null) {
+			System.err.println("property file '" + propFilePath
+					+ "' not found in the classpath");
+			return null;
+		}
+		return prop.getProperty(key);
+	}
+
+	public static boolean storeValueByKeyFromConfig(String key, String value,
+			String propFilePath) {
+		Properties prop = new Properties();
+		InputStream inputStream = null;
+		OutputStream outputStream = null;
+		try {
+			inputStream = new FileInputStream(propFilePath);
+			prop.load(inputStream);
+
+			prop.setProperty(key, value);
+
+			outputStream = new FileOutputStream(propFilePath);
+			prop.store(outputStream, "");
+			inputStream.close();
+			outputStream.close();
+		} catch (IOException e) {
+			log.error("IOException", e);
+			return false;
+		}
+		return true;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(CommonUtils.getValueByKeyFromConfig("period.count",
+				"tempVariables.properties"));
+		System.out.println(CommonUtils.storeValueByKeyFromConfig(
+				"period.count", "81", "tempVariables.properties"));
+	}
 }

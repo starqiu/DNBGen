@@ -1,11 +1,57 @@
+library(foreach)
+library(doParallel)
+
 # BASE.PATH <- "/host/data/"
-BASE.PATH <- "~/gdm/"
-PERIOD.COUNT <- 5 #we have 5 periods:4wk,8wk,12wk,16wk,20wk
-PERIOD.SAMPLE.COUNT <- 5 # divide into GK and WKY, each have 5 samples 
+BASE.PATH <- "~/prog/apache-tomcat-8.0.17/webapps/DNBGen/WEB-INF/classes/"
+# PERIOD.COUNT <- 5 
+# PERIOD.SAMPLE.COUNT <- 5 
+PERIOD.COUNT <- 4 
+PERIOD.SAMPLE.COUNT <- 3 
+STATE <- c("case","control") #case is abnormal,control is normal
+STATE.COUNT <- 2 #
 CORES <- 6
 
+init <- function(args){
+  len <- length(args)
+  for (i in seq(1,len,by=2)){
+    set.key.value(args[i],args[i+1])
+  }
+}
+
+set.key.value  <- function(key,value){
+  switch(key,
+         "-p" = ,
+         "--base.path" = BASE.PATH <<- value,
+         "--period.count" = PERIOD.COUNT <<- as.integer(value),
+         "--period.sample.count" = PERIOD.SAMPLE.COUNT <<- as.integer(value),
+         "--cores" = CORES <<- as.integer(value)
+  )
+}
+
+print.usage <- function(){
+  cat("Usage: gdm4Par.R [-h/--help |-p/--base.path directory] \n
+      [--period.count number] [--period.sample.count number]  \n
+      [cores number]\n")
+  cat("Details:\n")
+  cat("\t -h/--help   show the usage of gdm4Par.R \n")
+  cat("\t -p/--base.path   set the path of gdm4Par.R . the default value is ./ \n")
+  cat("\t --period.count   set the number of periods  .
+      the default is 5  \n")
+  cat("\t --period.sample.count   set the number of samples in every period . 
+      the default is 5 \n")
+  cat("\t --cores  set the number of cores we use for parallel program 
+      the default is 6 \n")
+  cat("Description:\n")
+  cat("\t  if -h/--help is appeared,the other parameters is ignored. 
+      \t  if you want have more cores ,you can set it larger value ,
+      the program may run faster.
+      \t  change features.sd.threshold may have suprise. it's good encough
+      to the data of rat's liver.
+      \n")
+}
+
 calc.pcc <- function(state,period){
-  filter.table <- read.table(paste(BASE.PATH,state,"_matrix_table_",period*4,"wk.txt",sep=""),
+  filter.table <- read.table(paste(BASE.PATH,state,"_matrix_table_",period,"_with_high_sd.txt",sep=""),
                              header=TRUE,sep="")
   geneIds <- filter.table[,1] #as the row names and column names of matrix
   filter.table <- filter.table[,c(2:(PERIOD.SAMPLE.COUNT+1))]
@@ -17,40 +63,37 @@ calc.pcc <- function(state,period){
 }
 
 cor.matrix.profile <- function(period){
-  gk.cor.matrix <- calc.pcc("gk",period)
-  wt.cor.matrix <- calc.pcc("wt",period)
-  cor.matrix <- gk.cor.matrix/wt.cor.matrix
-  rm(gk.cor.matrix)
-  rm(wt.cor.matrix)
+  case.cor.matrix <- calc.pcc("case",period)
+  control.cor.matrix <- calc.pcc("control",period)
+  cor.matrix <- case.cor.matrix/control.cor.matrix
+  rm(case.cor.matrix)
+  rm(control.cor.matrix)
   cor.vector.log <- log(as.vector(cor.matrix[lower.tri(cor.matrix)]))
   rm(cor.matrix)
   hist(cor.vector.log)
 }
 
 gen.gdm.csv.bk <- function(period){
-  gk.cor.matrix <- calc.pcc("gk",period)
-  wt.cor.matrix <- calc.pcc("wt",period)
-  cor.matrix <- gk.cor.matrix/wt.cor.matrix
-  rm(gk.cor.matrix)
-  rm(wt.cor.matrix)
+  case.cor.matrix <- calc.pcc("case",period)
+  control.cor.matrix <- calc.pcc("control",period)
+  cor.matrix <- case.cor.matrix/control.cor.matrix
+  rm(case.cor.matrix)
+  rm(control.cor.matrix)
   
   genes <- rownames(cor.matrix)
   
   # sum(cor.matrix>1)-10729
   # hist(as.vector(cor.matrix))
   total.row <- nrow(cor.matrix)
-  title <- c("source","target","interaction","directed","symbol","value")
+  title <- c("source","target","symbol","value")
   
-  save.file.name <- paste(BASE.PATH,"gdm_",period*4,"wk.csv",sep="")
+  save.file.name <- paste(BASE.PATH,"gdm_",period,".csv",sep="")
   if (file.exists(save.file.name)){
     file.remove(save.file.name)
   }
   write.table(t(title),save.file.name,
               append=TRUE,quote=FALSE,sep=",",
               row.names =FALSE,col.names=FALSE)
-  
-  interaction <- "pp"
-  directed <- "FALSE"
   
   for( i in 1:(total.row-1)){
     
@@ -62,7 +105,7 @@ gen.gdm.csv.bk <- function(period){
     value <- cor.matrix[i,element.index]
     symbol <- paste("abcd",i,element.index,sep="")
     
-    cyto.csv <- cbind(mysource,mytarget,interaction,directed,symbol,value)
+    cyto.csv <- cbind(mysource,mytarget,symbol,value)
     
     write.table(cyto.csv,save.file.name,
                 append=TRUE,quote=FALSE,sep=",",
@@ -71,18 +114,18 @@ gen.gdm.csv.bk <- function(period){
 }
 
 gen.gdm.csv <- function(period){
-  gk.cor.matrix <- calc.pcc("gk",period)
-  wt.cor.matrix <- calc.pcc("wt",period)
-  cor.matrix <- gk.cor.matrix/wt.cor.matrix
-  rm(gk.cor.matrix)
-  rm(wt.cor.matrix)
+  case.cor.matrix <- calc.pcc(STATE[1],period)
+  control.cor.matrix <- calc.pcc(STATE[2],period)
+  cor.matrix <- case.cor.matrix/control.cor.matrix
+  rm(case.cor.matrix)
+  rm(control.cor.matrix)
   genes <- rownames(cor.matrix)
   # sum(cor.matrix>1)-10729
   # hist(as.vector(cor.matrix))
   total.row <- nrow(cor.matrix)
-  title <- c("source","target","interaction","directed","symbol","value")
+  title <- c("source","target","symbol","value")
   
-  save.file.name <- paste(BASE.PATH,"gdm_",period*4,"wk.csv",sep="")
+  save.file.name <- paste(BASE.PATH,"gdm_",period,".csv",sep="")
   if (file.exists(save.file.name)){
     file.remove(save.file.name)
   }
@@ -90,15 +133,12 @@ gen.gdm.csv <- function(period){
               append=TRUE,quote=FALSE,sep=",",
               row.names =FALSE,col.names=FALSE)
   
-  interaction <- "pp"
-  directed <- "FALSE"
   
   for( i in 1:(total.row-1)){
     
-#     element.index <- (i+1):total.row
-#     element.num <- total.row - i
-    element.index <- which(log(cor.matrix[i,])>5)
-    element.index <- element.index[element.index>i]
+    element.index <- (i+1):total.row
+    #     element.index <- which(log(cor.matrix[i,])>5)
+    #     element.index <- element.index[element.index>i]
     element.num <- length(element.index)
     
     if (element.num > 0){
@@ -107,7 +147,7 @@ gen.gdm.csv <- function(period){
       value <- cor.matrix[i,element.index]
       symbol <- paste("abcd",i,element.index,sep="")
       
-      cyto.csv <- cbind(mysource,mytarget,interaction,directed,symbol,value)
+      cyto.csv <- cbind(mysource,mytarget,symbol,value)
       
       write.table(cyto.csv,save.file.name,
                   append=TRUE,quote=FALSE,sep=",",
@@ -117,12 +157,25 @@ gen.gdm.csv <- function(period){
 }
 
 main <- function(){
-  registerDoParallel(cores=CORES)
-  
-  foreach (i = 1:PERIOD.COUNT) %dopar% {
-    gen.gdm.csv(i)
+  registerDoParallel(cores=CORES) 
+  args <- commandArgs(TRUE)
+  print(args)
+  if ((length(args) %% 2 != 0) ){
+    print.usage()
+  }else {
+    if(length(args) != 0){
+      init(args)
+    }
+    
+    setwd(BASE.PATH)
+    print(paste("working directory : " , BASE.PATH))
+    #     for (i in 1:PERIOD.COUNT)  {
+    #       gen.gdm.csv(i)
+    #     }
+    foreach (i = 1:PERIOD.COUNT) %dopar% {
+      gen.gdm.csv(i)
+    }
   }
 }
-
+# main()
 system.time(main())
-# cor.matrix.profile(1)

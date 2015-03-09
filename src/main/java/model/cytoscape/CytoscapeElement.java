@@ -23,8 +23,17 @@ import java.util.List;
  * 
  */
 public class CytoscapeElement {
+	private String id;
 	private List<CytoscapeNode> nodes;
 	private List<CytoscapeEdge> edges;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public List<CytoscapeNode> getNodes() {
 		return nodes;

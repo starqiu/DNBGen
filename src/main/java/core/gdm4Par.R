@@ -244,10 +244,10 @@ pcc.test <- function(period){
   #   case.cor.table <- as.matrix(case.cor.table)
   
   # the pcc value,as the edge
-  write.table(case.cor.table/control.cor.table,
-              paste("matrix_table_pcc_"+period+".txt",sep=""),
-              row.names=FALSE,
-              sep="\t")
+  #   write.table(case.cor.table/control.cor.table,
+  #               paste("matrix_table_pcc_"+period+".txt",sep=""),
+  #               row.names=FALSE,
+  #               sep="\t")
   
   
   model <- hclust(as.dist(1-case.cor.table))

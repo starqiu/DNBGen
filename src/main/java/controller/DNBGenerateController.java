@@ -94,6 +94,14 @@ public class DNBGenerateController {
 		log.info("cmd:" + cmd.toString());
 		CommonUtils.execShellCmd(cmd.toString());
 
+		// store cores, periodCount and periodSampleCount into file
+		String propPath = classPath + "tempVariables.properties";
+		CommonUtils.storeValueByKeyFromConfig("cores", cores, propPath);
+		CommonUtils.storeValueByKeyFromConfig("period.count", periodCount,
+				propPath);
+		CommonUtils.storeValueByKeyFromConfig("period.sample.count",
+				periodSampleCount, propPath);
+
 		return charts(request);
 	}
 

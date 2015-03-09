@@ -20,9 +20,10 @@
 
 	<div class="widget-content">
 
+
 		<div id="cy" class="chart-holder">
 			<script type="text/javascript">
-			drawCytoPic('${cytoElement}');
+			drawCytoPic('${cytoElement}','cy');
 			</script>
 		</div>
 		<!-- /donut-chart -->

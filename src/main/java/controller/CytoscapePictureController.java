@@ -12,6 +12,7 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,9 @@ import net.sf.json.JSONArray;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import utils.CommonUtils;
+import utils.DnbUtils;
 
 /**
  * 实现功能：Cytoscape 绘图控制器
@@ -45,21 +49,24 @@ public class CytoscapePictureController {
 
 	@RequestMapping(value = "cytoscapePic.do")
 	public String cytoscapePic(HttpServletRequest request) {
-		CytoscapeElement element = new CytoscapeElement();
-		List<CytoscapeNode> nodes = new ArrayList<CytoscapeNode>();
-		List<CytoscapeEdge> edges = new ArrayList<CytoscapeEdge>();
 
+		//generate gdm_x.csv
+/*		CommonUtils.geneateGdmCsv(classPath);
 		
-		
-		createElement4Test(nodes, edges);
-		
+		List<String> eles = new ArrayList<String>();
 
-		element.setNodes(nodes);
-		element.setEdges(edges);
-		Object cytoElementJsonObject = JSONArray.fromObject(element).get(0);
-		log.info("ele :" + cytoElementJsonObject);
-		System.out.println("ele :" + cytoElementJsonObject);
-		request.setAttribute("cytoElement", cytoElementJsonObject);
+		String[] periods = DnbUtils.getAllPeriods(classPath);
+		for (String period : periods) {
+			eles.add(JSONArray
+					.fromObject(DnbUtils.getElementByPeriod(classPath, period))
+					.get(0).toString());
+		}
+
+		request.setAttribute("cytoElements", eles);*/
+		request.setAttribute("cytoElement",JSONArray
+				.fromObject(createElement4Test())
+				.get(0).toString()
+				);
 
 		return "cytoscapePic";
 	}
@@ -68,8 +75,9 @@ public class CytoscapePictureController {
 	 * @param nodes
 	 * @param edges
 	 */
-	private void createElement4Test(List<CytoscapeNode> nodes,
-			List<CytoscapeEdge> edges) {
+	private CytoscapeElement createElement4Test() {
+		List<CytoscapeNode> nodes =  new ArrayList<CytoscapeNode>();
+		List<CytoscapeEdge> edges = new ArrayList<CytoscapeEdge>();
 		for (int i = 0; i < 5; i++) {
 			CytoscapeNode node = new CytoscapeNode();
 
@@ -96,6 +104,13 @@ public class CytoscapePictureController {
 				}
 			}
 		}
+		
+		CytoscapeElement element = new CytoscapeElement();
+		element.setNodes(nodes);
+		element.setEdges(edges);
+		element.setId("id"+Math.random());
+		
+		return element;
 	}
 
 	public static void main(String[] args) {

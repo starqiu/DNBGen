@@ -23,13 +23,16 @@ import java.util.List;
 
 import model.CiData;
 import model.DnbData;
+import model.cytoscape.CytoscapeEdge;
+import model.cytoscape.CytoscapeEdgeData;
+import model.cytoscape.CytoscapeElement;
 import model.cytoscape.CytoscapeNode;
 import model.cytoscape.CytoscapeNodeData;
 
 import org.apache.log4j.Logger;
 
 /**
- * 实现功能：
+ * 实现功能：operation of DNB relative files ,to get DNB infomation
  * <p>
  * date author email notes<br />
  * -------- --------------------------- ---------------<br />
@@ -41,7 +44,71 @@ public final class DnbUtils {
 
 	public static final Logger log = Logger.getLogger(DnbUtils.class);
 
-	public static List<CytoscapeNode> getAllNodes(String classPath,
+	public static List<CytoscapeElement> getAllElements(String classPath) {
+
+		List<CytoscapeElement> eles = new ArrayList<CytoscapeElement>();
+		String[] periods = getAllPeriods(classPath);
+		for (String period : periods) {
+			eles.add(getElementByPeriod(classPath, period));
+		}
+
+		return eles;
+	}
+
+	public static CytoscapeElement getElementByPeriod(String classPath,
+			String period) {
+
+		CytoscapeElement ele = new CytoscapeElement();
+		ele.setId("ele" + period);
+		ele.setNodes(getAllNodesByPeriod(classPath, period));
+		ele.setEdges(getAllEdgesByPeriod(classPath, period));
+
+		return ele;
+	}
+
+	public static List<CytoscapeEdge> getAllEdgesByPeriod(String classPath,
+			String period) {
+		List<CytoscapeEdge> edges = new ArrayList<CytoscapeEdge>();
+		HashMap<String, String> dnbMap = getDnbMapByPeriod(classPath, period);
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(new File(
+					classPath + "gdm_" + period + ".csv")));
+			// skip the title
+			br.readLine();
+			String[] line;
+			while (br.ready()) {
+				line = br.readLine().split("\t");
+
+				CytoscapeEdge edge = new CytoscapeEdge();
+
+				CytoscapeEdgeData data = new CytoscapeEdgeData();
+				data.setSource(line[0]);
+				data.setTarget(line[1]);
+				data.setId(line[2]);
+				data.setNormalized_max_weight(Double.valueOf(line[3]));
+				data.setName(data.getId());
+
+				// indicate DNB
+				if ((null != dnbMap.get(data.getSource()))
+						|| (null != dnbMap.get(data.getTarget()))) {
+					data.setData_type("dnb");
+					data.setHighlight(1);
+					data.getNetworks().remove(0);
+					data.getNetworks().add("dnb");
+
+					edge.setSelected(true);
+				}
+				edge.setData(data);
+				edges.add(edge);
+			}
+		} catch (IOException e) {
+			log.error("get all edges error! period=" + period, e);
+		}
+
+		return edges;
+	}
+
+	public static List<CytoscapeNode> getAllNodesByPeriod(String classPath,
 			String period) {
 		List<CytoscapeNode> nodes = new ArrayList<CytoscapeNode>();
 		HashMap<String, String> dnbMap = getDnbMapByPeriod(classPath, period);
@@ -73,7 +140,7 @@ public final class DnbUtils {
 			}
 
 		} catch (IOException e) {
-			log.error("get all nodes error!", e);
+			log.error("get all nodes error!period=" + period, e);
 		}
 		return nodes;
 	}
@@ -98,7 +165,7 @@ public final class DnbUtils {
 		return dnbMap;
 	}
 
-	public static String[] getAllPeriods(String classPath, String period) {
+	public static String[] getAllPeriods(String classPath) {
 		return getAllCIs(classPath).getCategories();
 	}
 
