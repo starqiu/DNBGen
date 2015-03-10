@@ -1,9 +1,9 @@
-# FILE.NAME <- "liver_labeled_data.txt"
-# PERIOD.COUNT <- 5 # the number of periods
-# PERIOD.SAMPLE.COUNT <- 5 # the number of samples in every period
-FILE.NAME <- "GSE64538_labeled.txt"
-PERIOD.COUNT <- 4 # the number of periods
-PERIOD.SAMPLE.COUNT <- 3 # the number of samples in every period
+FILE.NAME <- "liver_labeled_data.txt"
+PERIOD.COUNT <- 5 # the number of periods
+PERIOD.SAMPLE.COUNT <- 5 # the number of samples in every period
+# FILE.NAME <- "GSE64538_labeled.txt"
+# PERIOD.COUNT <- 4 # the number of periods
+# PERIOD.SAMPLE.COUNT <- 3 # the number of samples in every period
 STATE <- c("case","control") #case is abnormal,control is normal
 STATE.COUNT <- 2 #
 

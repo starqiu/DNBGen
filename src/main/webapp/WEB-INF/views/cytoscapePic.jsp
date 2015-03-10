@@ -10,29 +10,30 @@
 	<i class="icon-signal"></i> Cytoscape Picture
 </h1>
 
-<div class="widget">
+<c:if test="${!empty  cytoElements}">
+	<c:forEach items="${cytoElements }"  varStatus="s"     var="cytoElement">
+			<div class="widget">
+				<div class="widget-header">
+					<i class="icon-star"></i>
+					<h3>Cytoscape Picture</h3>
+				</div>
+				<!-- /widget-header -->
+			
+				<div class="widget-content">
+					<div id="<c:out value='${ s}' />" class="chart-holder">
+						<script type="text/javascript">
+							drawCytoPic('${cytoElement}','${ s}');
+						</script>
+					</div>
+				</div>
+				<!-- /widget-content -->
+				
+			</div>
+			<!-- /widget -->
+	</c:forEach>
+</c:if>
 
-	<div class="widget-header">
-		<i class="icon-star"></i>
-		<h3>Cytoscape Picture</h3>
-	</div>
-	<!-- /widget-header -->
 
-	<div class="widget-content">
-
-
-		<div id="cy" class="chart-holder">
-			<script type="text/javascript">
-			drawCytoPic('${cytoElement}','cy');
-			</script>
-		</div>
-		<!-- /donut-chart -->
-
-	</div>
-	<!-- /widget-content -->
-
-</div>
-<!-- /widget -->
 
 <script type="text/javascript">
 	$("#cytoscapePic").addClass("active");

@@ -2,10 +2,10 @@ var drawCytoPic = function(element,id){
 
 	var ele = JSON.parse(element);
 	
-	console.log(ele);
+/*	console.log(ele);
 	
 	console.log(id);
-	console.log(document.getElementById(id));
+	console.log(document.getElementById(id));*/
 	var cy = cytoscape({
 		  container: document.getElementById(id),
 		  

@@ -51,7 +51,7 @@ public class CytoscapePictureController {
 	public String cytoscapePic(HttpServletRequest request) {
 
 		//generate gdm_x.csv
-/*		CommonUtils.geneateGdmCsv(classPath);
+		CommonUtils.geneateGdmCsv(classPath);
 		
 		List<String> eles = new ArrayList<String>();
 
@@ -62,11 +62,11 @@ public class CytoscapePictureController {
 					.get(0).toString());
 		}
 
-		request.setAttribute("cytoElements", eles);*/
-		request.setAttribute("cytoElement",JSONArray
+		request.setAttribute("cytoElements", eles);
+/*		request.setAttribute("cytoElement",JSONArray
 				.fromObject(createElement4Test())
 				.get(0).toString()
-				);
+				);*/
 
 		return "cytoscapePic";
 	}

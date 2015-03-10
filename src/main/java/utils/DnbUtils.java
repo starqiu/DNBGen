@@ -104,7 +104,7 @@ public final class DnbUtils {
 		} catch (IOException e) {
 			log.error("get all edges error! period=" + period, e);
 		}
-
+		System.out.println("hello");
 		return edges;
 	}
 

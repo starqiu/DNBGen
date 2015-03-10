@@ -1,3 +1,10 @@
+#! /usr/bin/Rscript --no-save
+#
+#' @author : star qiu
+#' @date 2014.8.1
+#' 
+#' 	
+
 library(foreach)
 library(doParallel)
 
