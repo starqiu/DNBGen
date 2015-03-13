@@ -43,6 +43,10 @@ import org.apache.log4j.Logger;
 public final class DnbUtils {
 
 	public static final Logger log = Logger.getLogger(DnbUtils.class);
+	
+	private DnbUtils(){
+		super();
+	}
 
 	public static List<CytoscapeElement> getAllElements(String classPath) {
 
@@ -77,7 +81,7 @@ public final class DnbUtils {
 			br.readLine();
 			String[] line;
 			while (br.ready()) {
-				line = br.readLine().split("\t");
+				line = br.readLine().split(",");
 
 				CytoscapeEdge edge = new CytoscapeEdge();
 
@@ -93,18 +97,17 @@ public final class DnbUtils {
 						|| (null != dnbMap.get(data.getTarget()))) {
 					data.setData_type("dnb");
 					data.setHighlight(1);
-					data.getNetworks().remove(0);
-					data.getNetworks().add("dnb");
+/*					data.getNetworks().remove(0);
+					data.getNetworks().add("dnb");*/
 
 					edge.setSelected(true);
+					edge.setData(data);
+					edges.add(edge);
 				}
-				edge.setData(data);
-				edges.add(edge);
 			}
 		} catch (IOException e) {
 			log.error("get all edges error! period=" + period, e);
 		}
-		System.out.println("hello");
 		return edges;
 	}
 
@@ -134,6 +137,7 @@ public final class DnbUtils {
 				}
 
 				CytoscapeNode node = new CytoscapeNode();
+				node.setData(data);
 				node.setSelected(true);
 
 				nodes.add(node);

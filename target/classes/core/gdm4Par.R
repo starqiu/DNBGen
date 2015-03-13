@@ -133,6 +133,7 @@ sd.test <- function(file.name,features.sd.threshold=0.001){
   write.table(case.period.matrix.table[no.zero.index,1],
               paste(file.name,"_genes.txt",sep=""),
               row.names=FALSE,
+              quote = FALSE,
               sep="\t")
   # the sd of genes 
   write.table(gene.sd,

@@ -77,9 +77,14 @@ public class DNBGenerateController {
 		String pccOutAmount = request.getParameter("pccOutAmount");
 
 		String cores = request.getParameter("cores");
-
-		StringBuffer cmd = new StringBuffer();
-		cmd.append(classPath).append("core/gdm4Par.R ").append(" -p ")
+		
+		String corePath =  classPath+"core/";
+		String addExeModCmd = "bash " + corePath+"addExeMod.sh " +  corePath;
+		log.info("addExeModCmd: "+addExeModCmd);
+		CommonUtils.execShellCmd(addExeModCmd);
+		
+		StringBuffer gdmCmd = new StringBuffer();
+		gdmCmd.append(classPath).append("core/gdm4Par.R ").append(" -p ")
 				.append(basePath).append("  --case.file.name  ")
 				.append(caseFileName).append("  --period.count   ")
 				.append(periodCount).append("  --period.sample.count  ")
@@ -88,11 +93,11 @@ public class DNBGenerateController {
 				.append(clusterHclustH).append(" --pcc.out.amount  ")
 				.append(pccOutAmount).append(" --cores ").append(cores);
 		if (!StringUtils.isEmpty(controlFileName)) {
-			cmd.append("  --control.file.name  ").append(controlFileName);
+			gdmCmd.append("  --control.file.name  ").append(controlFileName);
 		}
 
-		log.info("cmd:" + cmd.toString());
-		CommonUtils.execShellCmd(cmd.toString());
+		log.info("gdmCmd:" + gdmCmd.toString());
+		CommonUtils.execShellCmd(gdmCmd.toString());
 
 		// store cores, periodCount and periodSampleCount into file
 		String propPath = classPath + "tempVariables.properties";

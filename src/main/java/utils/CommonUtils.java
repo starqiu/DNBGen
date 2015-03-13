@@ -39,6 +39,10 @@ public class CommonUtils {
 
 	public static final Logger log = Logger.getLogger(CommonUtils.class);
 
+	private CommonUtils(){
+		super();
+	}
+	
 	public static void geneateGdmCsv(String classPath) {
 
 		String propPath = classPath + "tempVariables.properties";

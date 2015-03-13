@@ -22,7 +22,7 @@
 				<div class="widget-content">
 					<div id="<c:out value='${ s}' />" class="chart-holder">
 						<script type="text/javascript">
-							drawCytoPic('${cytoElement}','${ s}');
+							drawCytoPic('${cytoElement}','${ s}'+"hhh");
 						</script>
 					</div>
 				</div>

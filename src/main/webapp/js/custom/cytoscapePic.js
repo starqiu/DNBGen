@@ -1,5 +1,5 @@
 var drawCytoPic = function(element,id){ 
-
+	console.log(id);
 	var ele = JSON.parse(element);
 	
 /*	console.log(ele);

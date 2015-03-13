@@ -198,12 +198,6 @@
 			<groupId>org.apache.tiles</groupId>
 			<artifactId>tiles-servlet</artifactId>
 			<version>3.0.3</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-digester</groupId>
-					<artifactId>commons-digester</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tiles</groupId>
@@ -224,6 +218,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.5.8</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -27,9 +27,11 @@
 
 	<div class="widget-content">
 		<%=e.getMessage()%>
+		<%--
 		<c:forEach items="${e.stackTrace }"    var="s">
 			${s }
 		</c:forEach>
+	--%>
 	</div>
 </div>
 <%--

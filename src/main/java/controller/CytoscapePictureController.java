@@ -23,8 +23,10 @@ import model.cytoscape.CytoscapeElement;
 import model.cytoscape.CytoscapeNode;
 import model.cytoscape.CytoscapeNodeData;
 import net.sf.json.JSONArray;
+import net.sf.json.util.NewBeanInstanceStrategy;
 
 import org.apache.log4j.Logger;
+import org.apache.xalan.templates.ElemApplyImport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -50,23 +52,26 @@ public class CytoscapePictureController {
 	@RequestMapping(value = "cytoscapePic.do")
 	public String cytoscapePic(HttpServletRequest request) {
 
-		//generate gdm_x.csv
+		// generate gdm_x.csv
 		CommonUtils.geneateGdmCsv(classPath);
-		
+
 		List<String> eles = new ArrayList<String>();
 
-		String[] periods = DnbUtils.getAllPeriods(classPath);
+		String[] periods = { "1" };// DnbUtils.getAllPeriods(classPath);
 		for (String period : periods) {
-			eles.add(JSONArray
-					.fromObject(DnbUtils.getElementByPeriod(classPath, period))
-					.get(0).toString());
+
+			CytoscapeElement element = DnbUtils.getElementByPeriod(classPath,
+					period);
+			String elementStr = JSONArray.fromObject(element).get(0).toString();
+//			log.info(elementStr);
+			eles.add(elementStr);
 		}
 
 		request.setAttribute("cytoElements", eles);
-/*		request.setAttribute("cytoElement",JSONArray
-				.fromObject(createElement4Test())
-				.get(0).toString()
-				);*/
+		/*
+		 * request.setAttribute("cytoElement",JSONArray
+		 * .fromObject(createElement4Test()) .get(0).toString() );
+		 */
 
 		return "cytoscapePic";
 	}
@@ -76,7 +81,7 @@ public class CytoscapePictureController {
 	 * @param edges
 	 */
 	private CytoscapeElement createElement4Test() {
-		List<CytoscapeNode> nodes =  new ArrayList<CytoscapeNode>();
+		List<CytoscapeNode> nodes = new ArrayList<CytoscapeNode>();
 		List<CytoscapeEdge> edges = new ArrayList<CytoscapeEdge>();
 		for (int i = 0; i < 5; i++) {
 			CytoscapeNode node = new CytoscapeNode();
@@ -104,16 +109,17 @@ public class CytoscapePictureController {
 				}
 			}
 		}
-		
+
 		CytoscapeElement element = new CytoscapeElement();
 		element.setNodes(nodes);
 		element.setEdges(edges);
-		element.setId("id"+Math.random());
-		
+		element.setId("id" + Math.random());
+
 		return element;
 	}
 
 	public static void main(String[] args) {
-		new CytoscapePictureController().cytoscapePic(null);
+		// new CytoscapePictureController().cytoscapePic(null);
+		System.out.println(Integer.class.cast(0x345));
 	}
 }

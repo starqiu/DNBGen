@@ -28,14 +28,14 @@ public class CytoscapeEdgeData {
 	private String source;
 	private String target;
 	private String data_type = "notDnb";
-	private List<String> networks=new ArrayList<String>() ;
+//	private List<String> networks=new ArrayList<String>() ;
 	private String name="default";
 	private int highlight = 0;
 	private double normalized_max_weight;
 
 	public CytoscapeEdgeData() {
 		super();
-		networks.add("notDnb");
+//		networks.add("notDnb");
 	}
 
 	public String getData_type() {
@@ -54,9 +54,9 @@ public class CytoscapeEdgeData {
 		return id;
 	}
 
-	public List<String>  getNetworks() {
-		return networks;
-	}
+//	public List<String>  getNetworks() {
+//		return networks;
+//	}
 
 	public String getSource() {
 		return source;
@@ -82,9 +82,9 @@ public class CytoscapeEdgeData {
 		this.id = id;
 	}
 
-	public void setNetworks(List<String>  networks) {
-		this.networks = networks;
-	}
+//	public void setNetworks(List<String>  networks) {
+//		this.networks = networks;
+//	}
 
 	public void setSource(String source) {
 		this.source = source;

@@ -146,19 +146,24 @@ gen.gdm.csv <- function(period){
     element.index <- (i+1):total.row
     #     element.index <- which(log(cor.matrix[i,])>5)
     #     element.index <- element.index[element.index>i]
+    value <- cor.matrix[i,element.index]
+    #value should not be Inf ,-Inf,0
+    element.index <- element.index[which(is.finite(value) & (0 != value))]
+    value <- cor.matrix[i,element.index]
+    
     element.num <- length(element.index)
     
     if (element.num > 0){
-      mysource <- genes[i]
-      mytarget <- genes[element.index]
-      value <- cor.matrix[i,element.index]
-      symbol <- paste("abcd",i,element.index,sep="")
-      
-      cyto.csv <- cbind(mysource,mytarget,symbol,value)
-      
-      write.table(cyto.csv,save.file.name,
-                  append=TRUE,quote=FALSE,sep=",",
-                  row.names =FALSE,col.names=FALSE)
+        
+        mysource <- genes[i]
+        mytarget <- genes[element.index]
+        symbol <- paste("abcd",i,element.index,sep="")
+        
+        cyto.csv <- cbind(mysource,mytarget,symbol,value)
+        
+        write.table(cyto.csv,save.file.name,
+                    append=TRUE,quote=FALSE,sep=",",
+                    row.names =FALSE,col.names=FALSE)
     }
   }
 }
@@ -176,12 +181,12 @@ main <- function(){
     
     setwd(BASE.PATH)
     print(paste("working directory : " , BASE.PATH))
-    #     for (i in 1:PERIOD.COUNT)  {
-    #       gen.gdm.csv(i)
-    #     }
-    foreach (i = 1:PERIOD.COUNT) %dopar% {
-      gen.gdm.csv(i)
-    }
+        for (i in 1:PERIOD.COUNT)  {
+          gen.gdm.csv(i)
+        }
+#     foreach (i = 1:PERIOD.COUNT) %dopar% {
+#       gen.gdm.csv(i)
+#     }
   }
 }
 # main()
