@@ -22,7 +22,7 @@ package model.cytoscape;
  */
 public class CytoscapeNode {
 	private CytoscapeNodeData data;
-	private boolean selected = false;
+//	private boolean selected = false;
 
 	public CytoscapeNodeData getData() {
 		return data;
@@ -32,11 +32,11 @@ public class CytoscapeNode {
 		this.data = data;
 	}
 
-	public boolean isSelected() {
-		return selected;
-	}
-
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
+//	public boolean isSelected() {
+//		return selected;
+//	}
+//
+//	public void setSelected(boolean selected) {
+//		this.selected = selected;
+//	}
 }

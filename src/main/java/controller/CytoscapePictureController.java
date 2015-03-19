@@ -11,8 +11,13 @@
  */
 package controller;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +28,8 @@ import model.cytoscape.CytoscapeElement;
 import model.cytoscape.CytoscapeNode;
 import model.cytoscape.CytoscapeNodeData;
 import net.sf.json.JSONArray;
-import net.sf.json.util.NewBeanInstanceStrategy;
 
 import org.apache.log4j.Logger;
-import org.apache.xalan.templates.ElemApplyImport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -48,26 +51,29 @@ public class CytoscapePictureController {
 	public static final Logger log = Logger
 			.getLogger(CytoscapePictureController.class);
 	public final String classPath = this.getClass().getResource("/").getPath();
+	public final String jsPath = new File(classPath).getParentFile()
+			.getParent() + "/js/";
 
 	@RequestMapping(value = "cytoscapePic.do")
 	public String cytoscapePic(HttpServletRequest request) {
 
-		// generate gdm_x.csv
-		CommonUtils.geneateGdmCsv(classPath);
-
-		List<String> eles = new ArrayList<String>();
-
-		String[] periods = { "1" };// DnbUtils.getAllPeriods(classPath);
-		for (String period : periods) {
-
-			CytoscapeElement element = DnbUtils.getElementByPeriod(classPath,
-					period);
-			String elementStr = JSONArray.fromObject(element).get(0).toString();
-//			log.info(elementStr);
-			eles.add(elementStr);
+		String[] periods = DnbUtils.getAllPeriods(classPath);
+		String period = (String) request.getAttribute("period");
+		if (null == period) {
+			period = periods[0];
+			// generate gdm_x.csv
+			CommonUtils.geneateGdmCsv(classPath);
 		}
 
-		request.setAttribute("cytoElements", eles);
+		CytoscapeElement element = DnbUtils.getElementByPeriod(classPath,
+				period);
+		String elementStr = JSONArray.fromObject(element).get(0).toString();
+		// log.info(elementStr);
+		log.info("js path :" + jsPath);
+		// generate JS file
+		DnbUtils.genCytoPicJsFile(jsPath,elementStr);
+
+		request.setAttribute("cytoElement", elementStr);
 		/*
 		 * request.setAttribute("cytoElement",JSONArray
 		 * .fromObject(createElement4Test()) .get(0).toString() );
@@ -75,6 +81,7 @@ public class CytoscapePictureController {
 
 		return "cytoscapePic";
 	}
+
 
 	/**
 	 * @param nodes

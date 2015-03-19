@@ -129,7 +129,7 @@ gen.gdm.csv <- function(period){
   genes <- rownames(cor.matrix)
   # sum(cor.matrix>1)-10729
   # hist(as.vector(cor.matrix))
-  total.row <- nrow(cor.matrix)
+
   title <- c("source","target","symbol","value")
   
   save.file.name <- paste(BASE.PATH,"gdm_",period,".csv",sep="")
@@ -140,6 +140,13 @@ gen.gdm.csv <- function(period){
               append=TRUE,quote=FALSE,sep=",",
               row.names =FALSE,col.names=FALSE)
   
+  
+  high.sd.genes <- read.table(paste("matrix_table_",period,"_genes.txt",sep="")
+                              ,header= TRUE)[,1]
+#   high.sd.genes.index <- which(genes %in% high.sd.genes)
+#   genes <- genes[high.sd.genes.index]
+#   cor.matrix <- cor.matrix[high.sd.genes.index,high.sd.genes.index]
+  total.row <- nrow(cor.matrix)  
   
   for( i in 1:(total.row-1)){
     

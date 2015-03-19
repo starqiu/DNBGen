@@ -1,13 +1,8 @@
-var drawCytoPic = function(element,id){ 
-	console.log(id);
+var drawCytoPic = function(){ 
 	var ele = JSON.parse(element);
 	
-/*	console.log(ele);
-	
-	console.log(id);
-	console.log(document.getElementById(id));*/
 	var cy = cytoscape({
-		  container: document.getElementById(id),
+		  container: document.getElementById('cy'),
 		  
 		  style: cytoscape.stylesheet()
 		    .selector('node')

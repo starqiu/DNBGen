@@ -22,22 +22,22 @@ package model.cytoscape;
  */
 public class CytoscapeEdge {
 	private CytoscapeEdgeData data;
-	private boolean selected = false;
+//	private boolean selected = false;
 
 	public CytoscapeEdgeData getData() {
 		return data;
 	}
 
-	public boolean isSelected() {
-		return selected;
-	}
+//	public boolean isSelected() {
+//		return selected;
+//	}
 
 	public void setData(CytoscapeEdgeData data) {
 		this.data = data;
 	}
 
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
+//	public void setSelected(boolean selected) {
+//		this.selected = selected;
+//	}
 
 }

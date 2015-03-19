@@ -12,8 +12,10 @@
 package utils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,8 +45,8 @@ import org.apache.log4j.Logger;
 public final class DnbUtils {
 
 	public static final Logger log = Logger.getLogger(DnbUtils.class);
-	
-	private DnbUtils(){
+
+	private DnbUtils() {
 		super();
 	}
 
@@ -96,11 +98,13 @@ public final class DnbUtils {
 				if ((null != dnbMap.get(data.getSource()))
 						|| (null != dnbMap.get(data.getTarget()))) {
 					data.setData_type("dnb");
-					data.setHighlight(1);
-/*					data.getNetworks().remove(0);
-					data.getNetworks().add("dnb");*/
+					// data.setHighlight(1);
+					/*
+					 * data.getNetworks().remove(0);
+					 * data.getNetworks().add("dnb");
+					 */
 
-					edge.setSelected(true);
+					// edge.setSelected(true);
 					edge.setData(data);
 					edges.add(edge);
 				}
@@ -138,7 +142,7 @@ public final class DnbUtils {
 
 				CytoscapeNode node = new CytoscapeNode();
 				node.setData(data);
-				node.setSelected(true);
+				// node.setSelected(true);
 
 				nodes.add(node);
 			}
@@ -239,5 +243,89 @@ public final class DnbUtils {
 		}
 		log.info("get ci value  successfully !");
 		return ci;
+	}
+
+	/**
+	 * 
+	 */
+	public static void genCytoPicJsFile(String jsPath, String elementStr) {
+		File jsFile = new File(jsPath + "custom/cytoscapePic.js");
+		if (jsFile.exists()) {
+			jsFile.delete();
+		}
+		BufferedWriter bw = null;
+		try {
+			jsFile.createNewFile();
+			bw = new BufferedWriter(new FileWriter(jsFile));
+
+//			bw.append("var drawCytoPic = function(){ \n")
+			bw.append("$(function(){ // on dom ready\n\n")
+//					.append("var ele = JSON.parse(")
+//					.append(elementStr)
+//					.append(");")
+          .append("\tvar cy = cytoscape({\n")
+          .append("\tcontainer: document.getElementById('cy'),\n")
+          .append("\tstyle: cytoscape.stylesheet()\n")
+          .append("\t\t.selector('node')\n")
+          .append("\t\t.css({\n")
+          .append("\t\t'font-size': 10,\n")
+          .append("\t\t'content': 'data(gene_name)',\n")
+          .append("\t\t'text-valign': 'center',\n")
+          .append("\t\t'color': 'white',\n")
+          .append("\t\t'text-outline-width': 2,\n")
+          .append("\t\t'text-outline-color': '#888',\n")
+          .append("\t\t'min-zoomed-font-size': 8,\n")
+          .append("\t\t'width': 'mapData(score, 0, 1, 20, 50)',\n")
+          .append("\t\t'height': 'mapData(score, 0, 1, 20, 50)'\n")
+          .append("\t\t})\n")
+          .append("\t\t.selector('node[node_type = \"notDnb\"]')\n")
+          .append("\t\t.css({\n")
+          .append("\t\t'background-color': '#666',\n")
+          .append("\t\t'text-outline-color': '#666'\n")
+          .append("\t\t})\n")
+          .append("\t\t.selector('node[node_type = \"dnb\"]')\n")
+          .append("\t\t.css({\n")
+          .append("\t\t'background-color': '#666',\n")
+          .append("\t\t'text-outline-color': '#666'\n")
+          .append("\t\t})\n")
+          .append("\t\t.selector('node:selected')\n")
+          .append("\t\t.css({\n")
+          .append("\t\t'background-color': '#000',\n")
+          .append("\t\t'text-outline-color': '#000'\n")
+          .append("\t\t})\n")
+          .append("\t\t.selector('edge')\n")
+          .append("\t\t.css({\n")
+          .append("\t\t'curve-style': 'haystack',\n")
+          .append("\t\t'opacity': 0.333,\n")
+          .append("\t\t'width': 'mapData(normalized_max_weight, 0, 0.01, 1, 2)',\n")
+          .append("\t\t})\n")
+          .append("\t\t.selector('edge[data_type = \"notDnb\"]')\n")
+          .append("\t\t.css({").append("'line-color': '#C32E2E'\n")
+          .append("\t\t})\n")
+          .append("\t\t.selector('edge[data_type = \"dnb\"]')\n")
+          .append("\t\t.css({").append("'line-color': '#EAA2A3'\n")
+          .append("\t\t})").append(".selector('edge:selected')\n")
+          .append("\t\t.css({").append("opacity: 1").append("}),\n")
+          .append("\telements:").append("cy3json.elements").append(",\n")
+          .append("\tlayout: {\n")
+          .append("\t\tname: 'concentric',\n")
+          .append("\t\tconcentric: function(){\n")
+          .append("\t\treturn this.data('score');\n")
+          .append("\t},\n")
+          .append("\tlevelWidth: function(nodes){\n")
+          .append("\t\treturn 0.5;\n")
+          .append("\t},\n")
+          .append("\tpadding: 10\n")
+          .append("\t}").append("});\n")
+          .append("\n}); // on dom ready\n")
+          .append("var cy3json = {\n")
+          .append("\t\"elements\":").append(elementStr).append("\n")
+          .append("};");
+			
+			bw.close();
+			log.info("generate cytoscapePic.js successfully!");
+		} catch (IOException e) {
+			log.info("generate cytoscapePic.js failed!", e);
+		}
 	}
 }

@@ -11,8 +11,6 @@
  */
 package model.cytoscape;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 实现功能： Cytoscape Edge Data
@@ -30,7 +28,7 @@ public class CytoscapeEdgeData {
 	private String data_type = "notDnb";
 //	private List<String> networks=new ArrayList<String>() ;
 	private String name="default";
-	private int highlight = 0;
+//	private int highlight = 0;
 	private double normalized_max_weight;
 
 	public CytoscapeEdgeData() {
@@ -46,9 +44,9 @@ public class CytoscapeEdgeData {
 		return name;
 	}
 
-	public int getHighlight() {
-		return highlight;
-	}
+//	public int getHighlight() {
+//		return highlight;
+//	}
 
 	public String getId() {
 		return id;
@@ -74,9 +72,9 @@ public class CytoscapeEdgeData {
 		this.name = name;
 	}
 
-	public void setHighlight(int highlight) {
-		this.highlight = highlight;
-	}
+//	public void setHighlight(int highlight) {
+//		this.highlight = highlight;
+//	}
 
 	public void setId(String id) {
 		this.id = id;

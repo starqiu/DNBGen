@@ -5,36 +5,30 @@
 
 <script src="<c:url value='/js/jquery-1.7.2.min.js' />"></script>
 <script src="<c:url value='/js/cytoscape.js' />"></script>
-<script src="<c:url value='/js/custom/cytoscapePic.js' />"></script>
 <h1 class="page-title">
 	<i class="icon-signal"></i> Cytoscape Picture
 </h1>
 
-<c:if test="${!empty  cytoElements}">
-	<c:forEach items="${cytoElements }"  varStatus="s"     var="cytoElement">
-			<div class="widget">
-				<div class="widget-header">
-					<i class="icon-star"></i>
-					<h3>Cytoscape Picture</h3>
-				</div>
-				<!-- /widget-header -->
-			
-				<div class="widget-content">
-					<div id="<c:out value='${ s}' />" class="chart-holder">
-						<script type="text/javascript">
-							drawCytoPic('${cytoElement}','${ s}'+"hhh");
-						</script>
-					</div>
-				</div>
-				<!-- /widget-content -->
-				
-			</div>
-			<!-- /widget -->
-	</c:forEach>
-</c:if>
+<div class="widget">
+	<div class="widget-header">
+		<i class="icon-star"></i>
+		<h3>Cytoscape Picture</h3>
+	</div>
+	<!-- /widget-header -->
 
+	<div class="widget-content">
+		<div id="cy"  class="chart-holder">
+		</div>
+	</div>
+	<!-- /widget-content -->
+	
+</div>
+<!-- /widget --><%--
 
+		<div id="cy"  >
+		</div>
 
+	--%><script src="<c:url value='/js/custom/cytoscapePic.js' />"></script>
 <script type="text/javascript">
 	$("#cytoscapePic").addClass("active");
 </script>
