@@ -141,8 +141,8 @@ gen.gdm.csv <- function(period){
               row.names =FALSE,col.names=FALSE)
   
   
-  high.sd.genes <- read.table(paste("matrix_table_",period,"_genes.txt",sep="")
-                              ,header= TRUE)[,1]
+#   high.sd.genes <- read.table(paste("matrix_table_",period,"_genes.txt",sep="")
+#                               ,header= TRUE)[,1]
 #   high.sd.genes.index <- which(genes %in% high.sd.genes)
 #   genes <- genes[high.sd.genes.index]
 #   cor.matrix <- cor.matrix[high.sd.genes.index,high.sd.genes.index]

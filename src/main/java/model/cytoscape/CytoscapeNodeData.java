@@ -23,8 +23,8 @@ package model.cytoscape;
 public class CytoscapeNodeData {
 	private String id;
 	private double score;
-	private String gene_name;
-	private String node_type = "notDnb";
+//	private String gene_name;
+//	private String node_type = "notDnb";
 
 	public String getId() {
 		return id;
@@ -42,19 +42,19 @@ public class CytoscapeNodeData {
 		this.score = score;
 	}
 
-	public String getGene_name() {
-		return gene_name;
-	}
-
-	public void setGene_name(String gene_name) {
-		this.gene_name = gene_name;
-	}
-
-	public String getNode_type() {
-		return node_type;
-	}
-
-	public void setNode_type(String node_type) {
-		this.node_type = node_type;
-	}
+//	public String getGene_name() {
+//		return gene_name;
+//	}
+//
+//	public void setGene_name(String gene_name) {
+//		this.gene_name = gene_name;
+//	}
+//
+//	public String getNode_type() {
+//		return node_type;
+//	}
+//
+//	public void setNode_type(String node_type) {
+//		this.node_type = node_type;
+//	}
 }

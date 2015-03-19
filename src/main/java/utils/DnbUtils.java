@@ -75,7 +75,7 @@ public final class DnbUtils {
 	public static List<CytoscapeEdge> getAllEdgesByPeriod(String classPath,
 			String period) {
 		List<CytoscapeEdge> edges = new ArrayList<CytoscapeEdge>();
-		HashMap<String, String> dnbMap = getDnbMapByPeriod(classPath, period);
+//		HashMap<String, String> dnbMap = getDnbMapByPeriod(classPath, period);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(
 					classPath + "gdm_" + period + ".csv")));
@@ -91,23 +91,23 @@ public final class DnbUtils {
 				data.setSource(line[0]);
 				data.setTarget(line[1]);
 				data.setId(line[2]);
-				data.setNormalized_max_weight(Double.valueOf(line[3]));
-				data.setName(data.getId());
+				data.setWeight(Double.valueOf(line[3]));
+//				data.setName(data.getId());
 
 				// indicate DNB
-				if ((null != dnbMap.get(data.getSource()))
-						|| (null != dnbMap.get(data.getTarget()))) {
-					data.setData_type("dnb");
-					// data.setHighlight(1);
-					/*
-					 * data.getNetworks().remove(0);
-					 * data.getNetworks().add("dnb");
-					 */
-
-					// edge.setSelected(true);
-					edge.setData(data);
-					edges.add(edge);
-				}
+//				if ((null != dnbMap.get(data.getSource()))
+//						|| (null != dnbMap.get(data.getTarget()))) {
+////					data.setData_type("dnb");
+//					// data.setHighlight(1);
+//					/*
+//					 * data.getNetworks().remove(0);
+//					 * data.getNetworks().add("dnb");
+//					 */
+//
+//					// edge.setSelected(true);
+//				}
+				edge.setData(data);
+				edges.add(edge);
 			}
 		} catch (IOException e) {
 			log.error("get all edges error! period=" + period, e);
@@ -118,7 +118,7 @@ public final class DnbUtils {
 	public static List<CytoscapeNode> getAllNodesByPeriod(String classPath,
 			String period) {
 		List<CytoscapeNode> nodes = new ArrayList<CytoscapeNode>();
-		HashMap<String, String> dnbMap = getDnbMapByPeriod(classPath, period);
+//		HashMap<String, String> dnbMap = getDnbMapByPeriod(classPath, period);
 
 		try {
 			BufferedReader idBr = new BufferedReader(new FileReader(new File(
@@ -134,11 +134,11 @@ public final class DnbUtils {
 				CytoscapeNodeData data = new CytoscapeNodeData();
 
 				data.setId(idBr.readLine());
-				data.setGene_name(data.getId());
+//				data.setGene_name(data.getId());
 				data.setScore(Double.valueOf(sdBr.readLine()));
-				if (dnbMap.get(data.getId()) != null) {
-					data.setNode_type("dnb");
-				}
+//				if (dnbMap.get(data.getId()) != null) {
+//					data.setNode_type("dnb");
+//				}
 
 				CytoscapeNode node = new CytoscapeNode();
 				node.setData(data);
@@ -161,6 +161,7 @@ public final class DnbUtils {
 	 * @param period
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private static HashMap<String, String> getDnbMapByPeriod(String classPath,
 			String period) {
 		List<String> dnbIds = getDnbGeneIds(classPath, period);
@@ -269,7 +270,7 @@ public final class DnbUtils {
           .append("\t\t.selector('node')\n")
           .append("\t\t.css({\n")
           .append("\t\t'font-size': 10,\n")
-          .append("\t\t'content': 'data(gene_name)',\n")
+          .append("\t\t'content': 'data(id)',\n")
           .append("\t\t'text-valign': 'center',\n")
           .append("\t\t'color': 'white',\n")
           .append("\t\t'text-outline-width': 2,\n")
@@ -278,16 +279,16 @@ public final class DnbUtils {
           .append("\t\t'width': 'mapData(score, 0, 1, 20, 50)',\n")
           .append("\t\t'height': 'mapData(score, 0, 1, 20, 50)'\n")
           .append("\t\t})\n")
-          .append("\t\t.selector('node[node_type = \"notDnb\"]')\n")
-          .append("\t\t.css({\n")
-          .append("\t\t'background-color': '#666',\n")
-          .append("\t\t'text-outline-color': '#666'\n")
-          .append("\t\t})\n")
-          .append("\t\t.selector('node[node_type = \"dnb\"]')\n")
-          .append("\t\t.css({\n")
-          .append("\t\t'background-color': '#666',\n")
-          .append("\t\t'text-outline-color': '#666'\n")
-          .append("\t\t})\n")
+//          .append("\t\t.selector('node[node_type = \"notDnb\"]')\n")
+//          .append("\t\t.css({\n")
+//          .append("\t\t'background-color': '#666',\n")
+//          .append("\t\t'text-outline-color': '#666'\n")
+//          .append("\t\t})\n")
+//          .append("\t\t.selector('node[node_type = \"dnb\"]')\n")
+//          .append("\t\t.css({\n")
+//          .append("\t\t'background-color': '#666',\n")
+//          .append("\t\t'text-outline-color': '#666'\n")
+//          .append("\t\t})\n")
           .append("\t\t.selector('node:selected')\n")
           .append("\t\t.css({\n")
           .append("\t\t'background-color': '#000',\n")
@@ -297,14 +298,15 @@ public final class DnbUtils {
           .append("\t\t.css({\n")
           .append("\t\t'curve-style': 'haystack',\n")
           .append("\t\t'opacity': 0.333,\n")
-          .append("\t\t'width': 'mapData(normalized_max_weight, 0, 0.01, 1, 2)',\n")
+          .append("\t\t'width': 'mapData(weight, 0, 0.01, 1, 2)',\n")
           .append("\t\t})\n")
-          .append("\t\t.selector('edge[data_type = \"notDnb\"]')\n")
-          .append("\t\t.css({").append("'line-color': '#C32E2E'\n")
-          .append("\t\t})\n")
-          .append("\t\t.selector('edge[data_type = \"dnb\"]')\n")
-          .append("\t\t.css({").append("'line-color': '#EAA2A3'\n")
-          .append("\t\t})").append(".selector('edge:selected')\n")
+//          .append("\t\t.selector('edge[data_type = \"notDnb\"]')\n")
+//          .append("\t\t.css({").append("'line-color': '#C32E2E'\n")
+//          .append("\t\t})\n")
+//          .append("\t\t.selector('edge[data_type = \"dnb\"]')\n")
+//          .append("\t\t.css({").append("'line-color': '#EAA2A3'\n")
+//          .append("\t\t})")
+          .append(".selector('edge:selected')\n")
           .append("\t\t.css({").append("opacity: 1").append("}),\n")
           .append("\telements:").append("cy3json.elements").append(",\n")
           .append("\tlayout: {\n")

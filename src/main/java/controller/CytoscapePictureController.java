@@ -11,12 +11,7 @@
  */
 package controller;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +66,7 @@ public class CytoscapePictureController {
 		// log.info(elementStr);
 		log.info("js path :" + jsPath);
 		// generate JS file
-		DnbUtils.genCytoPicJsFile(jsPath,elementStr);
+//		DnbUtils.genCytoPicJsFile(jsPath,elementStr);
 
 		request.setAttribute("cytoElement", elementStr);
 		/*
@@ -87,6 +82,7 @@ public class CytoscapePictureController {
 	 * @param nodes
 	 * @param edges
 	 */
+	@SuppressWarnings("unused")
 	private CytoscapeElement createElement4Test() {
 		List<CytoscapeNode> nodes = new ArrayList<CytoscapeNode>();
 		List<CytoscapeEdge> edges = new ArrayList<CytoscapeEdge>();
@@ -96,7 +92,7 @@ public class CytoscapePictureController {
 			CytoscapeNodeData nodeData = new CytoscapeNodeData();
 			nodeData.setId(String.valueOf(i));
 			nodeData.setScore(Math.random());
-			nodeData.setGene_name("g" + String.valueOf(i));
+//			nodeData.setGene_name("g" + String.valueOf(i));
 
 			node.setData(nodeData);
 
@@ -110,7 +106,7 @@ public class CytoscapePictureController {
 					edgeData.setTarget(String.valueOf(j));
 					edgeData.setId("e" + edgeData.getSource() + "-"
 							+ edgeData.getTarget());
-					edgeData.setNormalized_max_weight(Math.random());
+					edgeData.setWeight(Math.random());
 					edge.setData(edgeData);
 					edges.add(edge);
 				}

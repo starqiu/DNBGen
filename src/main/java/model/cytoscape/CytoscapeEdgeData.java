@@ -25,24 +25,24 @@ public class CytoscapeEdgeData {
 	private String id;
 	private String source;
 	private String target;
-	private String data_type = "notDnb";
+//	private String data_type = "notDnb";
 //	private List<String> networks=new ArrayList<String>() ;
-	private String name="default";
+//	private String name="default";
 //	private int highlight = 0;
-	private double normalized_max_weight;
+	private double weight;
 
 	public CytoscapeEdgeData() {
 		super();
 //		networks.add("notDnb");
 	}
 
-	public String getData_type() {
-		return data_type;
-	}
-
-	public String getName() {
-		return name;
-	}
+//	public String getData_type() {
+//		return data_type;
+//	}
+//
+//	public String getName() {
+//		return name;
+//	}
 
 //	public int getHighlight() {
 //		return highlight;
@@ -64,13 +64,13 @@ public class CytoscapeEdgeData {
 		return target;
 	}
 
-	public void setData_type(String data_type) {
-		this.data_type = data_type;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+//	public void setData_type(String data_type) {
+//		this.data_type = data_type;
+//	}
+//
+//	public void setName(String name) {
+//		this.name = name;
+//	}
 
 //	public void setHighlight(int highlight) {
 //		this.highlight = highlight;
@@ -92,11 +92,11 @@ public class CytoscapeEdgeData {
 		this.target = target;
 	}
 
-	public double getNormalized_max_weight() {
-		return normalized_max_weight;
+	public double getWeight() {
+		return weight;
 	}
 
-	public void setNormalized_max_weight(double normalized_max_weight) {
-		this.normalized_max_weight = normalized_max_weight;
+	public void setWeight(double weight) {
+		this.weight = weight;
 	}
 }
