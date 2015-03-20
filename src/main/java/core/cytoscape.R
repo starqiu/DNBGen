@@ -120,6 +120,26 @@ gen.gdm.csv.bk <- function(period){
   }
 }
 
+generate.high.sd.genes <- function (period,genes) {
+  all.genes <- read.table(paste("matrix_table_",period,"_genes.txt",sep="")
+                          ,header= TRUE)[,1]
+  all.sds <- read.table(paste("matrix_table_",period,"_sd.txt",sep="")
+                        ,header= TRUE)[,1]
+  
+  high.sd.genes.len <- length(genes)
+  high.sd.genes.index <- numeric(length=high.sd.genes.len)
+  for(i in 1:high.sd.genes.len){
+    high.sd.genes.index[i] <- which(genes[i] == all.genes)
+  }
+
+  high.sd.genes.and.sd <- cbind(all.genes[high.sd.genes.index]
+                                ,all.sds[high.sd.genes.index])
+  write.table(high.sd.genes.and.sd,
+              paste("matrix_table_",period,"_high_sd_genes.txt",sep=""),
+              quote=FALSE,sep=",",
+              row.names =FALSE,col.names=FALSE)
+}
+
 gen.gdm.csv <- function(period){
   case.cor.matrix <- calc.pcc(STATE[1],period)
   control.cor.matrix <- calc.pcc(STATE[2],period)
@@ -127,6 +147,9 @@ gen.gdm.csv <- function(period){
   rm(case.cor.matrix)
   rm(control.cor.matrix)
   genes <- rownames(cor.matrix)
+  
+  generate.high.sd.genes(period,genes)
+  
   # sum(cor.matrix>1)-10729
   # hist(as.vector(cor.matrix))
 

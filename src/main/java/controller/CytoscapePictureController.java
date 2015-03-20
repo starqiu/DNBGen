@@ -22,6 +22,8 @@ import model.cytoscape.CytoscapeEdgeData;
 import model.cytoscape.CytoscapeElement;
 import model.cytoscape.CytoscapeNode;
 import model.cytoscape.CytoscapeNodeData;
+import model.cytoscape.EleObj;
+import model.cytoscape.Element;
 import net.sf.json.JSONArray;
 
 import org.apache.log4j.Logger;
@@ -60,9 +62,9 @@ public class CytoscapePictureController {
 			CommonUtils.geneateGdmCsv(classPath);
 		}
 
-		CytoscapeElement element = DnbUtils.getElementByPeriod(classPath,
+		 List<EleObj> element = DnbUtils.getElementByPeriod(classPath,
 				period);
-		String elementStr = JSONArray.fromObject(element).get(0).toString();
+		String elementStr = JSONArray.fromObject(element).toString();
 		// log.info(elementStr);
 		log.info("js path :" + jsPath);
 		// generate JS file
