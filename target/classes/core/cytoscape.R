@@ -125,6 +125,8 @@ generate.high.sd.genes <- function (period,genes) {
                           ,header= TRUE)[,1]
   all.sds <- read.table(paste("matrix_table_",period,"_sd.txt",sep="")
                         ,header= TRUE)[,1]
+  # avoid regarding as factor
+  all.genes <- as.character(all.genes)
   
   high.sd.genes.len <- length(genes)
   high.sd.genes.index <- numeric(length=high.sd.genes.len)
@@ -171,6 +173,8 @@ gen.gdm.csv <- function(period){
 #   cor.matrix <- cor.matrix[high.sd.genes.index,high.sd.genes.index]
   total.row <- nrow(cor.matrix)  
   
+  dnb <-read.table(paste("matrix_table_",period,"_dnb.txt",sep=""))[,1]
+
   for( i in 1:(total.row-1)){
     
     element.index <- (i+1):total.row
@@ -179,14 +183,21 @@ gen.gdm.csv <- function(period){
     value <- cor.matrix[i,element.index]
     #value should not be Inf ,-Inf,0
     element.index <- element.index[which(is.finite(value) & (0 != value))]
+    
+    mysource <- genes[i]
+    mytarget <- genes[element.index]
+    
+    #ignore the edges of whose souce and target are both not in dnb
+    if(!(mysource %in% dnb)){
+      element.index <- element.index[which(mytarget %in% dnb)]
+      mytarget <- genes[element.index]
+    }
     value <- cor.matrix[i,element.index]
     
-    element.num <- length(element.index)
+    element.num <- length(mytarget)
     
     if (element.num > 0){
         
-        mysource <- genes[i]
-        mytarget <- genes[element.index]
         symbol <- paste("abcd",i,element.index,sep="")
         
         cyto.csv <- cbind(mysource,mytarget,symbol,value)

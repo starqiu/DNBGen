@@ -29,8 +29,6 @@ import model.cytoscape.EdgeData;
 import model.cytoscape.EleObj;
 import model.cytoscape.Element;
 import model.cytoscape.NodeData;
-import model.cytoscape.NodeEleObj;
-import model.cytoscape.Position;
 
 import org.apache.log4j.Logger;
 
@@ -184,10 +182,17 @@ public final class DnbUtils {
 		EleObj dnbNode = new EleObj();
 		NodeData dnbData = new NodeData();
 		dnbData.setId("dnb");
-		dnbData.setScore(500);
-//		dnbData.setParent("");
+		dnbData.setScore(50000);
 		dnbNode.setData(dnbData);
 		nodes.add(dnbNode);
+		
+		//add  not DNB  node
+//		EleObj notDnbNode = new EleObj();
+//		NodeData notDnbData = new NodeData();
+//		notDnbData.setId("notDnb");
+//		notDnbData.setScore(500000);
+//		notDnbNode.setData(notDnbData);
+//		nodes.add(notDnbNode);
 		
 		try {
 			BufferedReader highSdGeneBr = new BufferedReader(new FileReader(new File(
@@ -206,7 +211,10 @@ public final class DnbUtils {
 				 if (dnbMap.get(data.getId()) != null) {
 //				 data.setNode_type("dnb");
 					 data.setParent("dnb");   
-				 }
+				 }else {
+					 data.setParent("notDnb");   
+					
+				}
 				EleObj node = new EleObj();
 				node.setData(data);
 				// node.setPosition(new Position());
@@ -228,7 +236,6 @@ public final class DnbUtils {
 	 * @param period
 	 * @return
 	 */
-	@SuppressWarnings("unused")
 	private static HashMap<String, String> getDnbMapByPeriod(String classPath,
 			String period) {
 		List<String> dnbIds = getDnbGeneIds(classPath, period);
@@ -326,8 +333,9 @@ public final class DnbUtils {
 			jsFile.createNewFile();
 			bw = new BufferedWriter(new FileWriter(jsFile));
 
-			jsFileTemple1(bw, elementStr);
+//			jsFileTemple1(bw, elementStr);
 //			jsFileTemple2(bw, elementStr);
+			jsFileTemple3(bw, elementStr);
 
 			bw.close();
 			log.info("generate cytoscapePic.js successfully!");
@@ -524,4 +532,50 @@ public final class DnbUtils {
 	.append("\t\n")
 	.append("}); // on dom ready\n");
 }
+	/**
+	 *  @param bw
+	* @param elementStr
+	* @throws IOException
+	*/
+	public static void jsFileTemple3(BufferedWriter bw, String elementStr)
+			throws IOException {
+		//			bw.append("var drawCytoPic = function(){ \n")
+		bw.append("$(function(){ // on dom ready\n")
+		.append("\n")
+		.append("\tvar cy = cytoscape({\n")
+		.append("\tcontainer: document.getElementById('cy'),\n")
+		.append("\tstyle: cytoscape.stylesheet()\n")
+		.append("\t\t.selector('node')\n")
+		.append("\t\t.css({\n")
+		.append("\t\t\t'font-size': 10,\n")
+		.append("\t\t\t'content': 'data(id)',\n")
+		.append("\t\t\t'text-valign': 'center',\n")
+		.append("\t\t\t'color': 'white',\n")
+		.append("\t\t\t'text-outline-width': 2,\n")
+		.append("\t\t\t'text-outline-color': '#888',\n")
+		.append("\t\t\t'min-zoomed-font-size': 8,\n")
+		.append("\t\t\t'width': 'mapData(score, 0, 1, 20, 50)',\n")
+		.append("\t\t\t'height': 'mapData(score, 0, 1, 20, 50)'\n")
+		.append("\t\t})\n")
+		.append("\t\t.selector('node:selected')\n")
+		.append("\t\t.css({\n")
+		.append("\t\t\t'background-color': '#000',\n")
+		.append("\t\t\t'text-outline-color': '#000'\n")
+		.append("\t\t})\n")
+		.append("\t\t.selector('edge')\n")
+		.append("\t\t.css({\n")
+		.append("\t\t\t'curve-style': 'haystack',\n")
+		.append("\t\t\t'opacity': 0.333,\n")
+		.append("\t\t\t'width': 'mapData(weight, 0, 0.01, 1, 2)',\n")
+		.append("\t\t})\n")
+		.append("\t\t.selector('edge:selected')\n")
+		.append("\t\t.css({opacity: 1}),\n")
+		.append("\telements:elements,\n")
+		.append("\tlayout: {\n")
+		.append("\t\tname: 'cose'\n")
+		.append("\t}});\n")
+		.append("\t\n")
+		.append("}); // on dom ready\n")
+		.append("var elements=").append(elementStr).append(";\n");
+	}
 }

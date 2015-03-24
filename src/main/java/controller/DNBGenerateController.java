@@ -79,7 +79,7 @@ public class DNBGenerateController {
 		String cores = request.getParameter("cores");
 		
 		String corePath =  classPath+"core/";
-		String addExeModCmd = "bash " + corePath+"addExeMod.sh " +  corePath;
+		String addExeModCmd = "bash " + corePath+"addExeModAndRemoveOldFiles.sh " +  corePath;
 		log.info("addExeModCmd: "+addExeModCmd);
 		CommonUtils.execShellCmd(addExeModCmd);
 		

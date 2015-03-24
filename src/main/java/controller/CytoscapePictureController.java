@@ -54,21 +54,25 @@ public class CytoscapePictureController {
 	@RequestMapping(value = "cytoscapePic.do")
 	public String cytoscapePic(HttpServletRequest request) {
 
-		String[] periods = DnbUtils.getAllPeriods(classPath);
-		String period = (String) request.getAttribute("period");
+		String[] dnbPeriods = DnbUtils.getAllDnbPeriods(classPath);
+		request.setAttribute("dnbPeriods", dnbPeriods);
+		
+		String period = (String) request.getParameter("period");
 		if (null == period) {
-			period = periods[0];
+			period = dnbPeriods[0];
 			// generate gdm_x.csv
 			CommonUtils.geneateGdmCsv(classPath);
 		}
-
+		request.setAttribute("currentPeriod", period);
+		log.info("current Period="+period);
+		
 		 List<EleObj> element = DnbUtils.getElementByPeriod(classPath,
 				period);
 		String elementStr = JSONArray.fromObject(element).toString();
 		// log.info(elementStr);
 		log.info("js path :" + jsPath);
 		// generate JS file
-//		DnbUtils.genCytoPicJsFile(jsPath,elementStr);
+		DnbUtils.genCytoPicJsFile(jsPath,elementStr);
 
 		request.setAttribute("cytoElement", elementStr);
 		/*
